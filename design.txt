@@ -1,0 +1,39 @@
+
+to do:
+scoring
+arrow down, push down harder
+add clouds
+game speed increase with time
+
+bird
+    player
+    loses with collision to cacti
+    win by collision with dino
+    can fly
+    flying low goes faster
+    flying high goes slower
+    suffers gravity
+
+dino
+    ai
+    slows down with collision to cacti
+    boost with collision to bird
+    can jump
+    suffers gravity
+
+cacti
+    procedurally generated
+
+ground
+    procedurally generated scrolling
+
+inputs
+    space/arrow up to start
+    space/arrow up to flap
+
+difficulty scalling
+    changing the game speed
+
+scoring
+    dino catching
+    every catch gives some points
