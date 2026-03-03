@@ -67,6 +67,7 @@ export class Bird {
                 // Dino collision - boost
                 this.engine.dino.dx += 20;
                 this.engine.dino.StartImmunity(100);
+                this.engine.AddBonusPoints(100);
             }
         }
 
@@ -127,5 +128,13 @@ export class Bird {
         this.xTarget = x;
         this.yTarget = y;
         this.speedTarget = speed;
+    }
+
+    Jump() {
+        this.dy = -this.jumpForce;
+    }
+
+    CrouchJump() {
+        this.dy += this.engine.gravity * 5; 
     }
 }

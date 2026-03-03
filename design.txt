@@ -1,9 +1,6 @@
 
 to do:
-scoring
-arrow down, push down harder
-add clouds
-game speed increase with time
+add hayballs
 
 bird
     player

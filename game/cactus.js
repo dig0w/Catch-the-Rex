@@ -25,7 +25,7 @@ export class Cactus {
     Tick() {
         this.spawnTimer++;
 
-        if (this.spawnTimer > (Math.random() * 75 + 75) * (this.engine.defaultGameSpeed / this.engine.gameSpeed)) {
+        if (this.spawnTimer > (Math.random() * 50 + 50) * (this.engine.defaultGameSpeed / this.engine.gameSpeed)) {
             let randomImg = this.images[Math.floor(Math.random() * this.images.length)];
             
             this.cacti.push({

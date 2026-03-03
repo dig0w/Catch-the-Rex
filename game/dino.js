@@ -80,6 +80,11 @@ export class Dino {
             this.engine.ctx.globalAlpha = 1.0;
         }
 
+        // AI
+        if (this.engine.isGameStarted && !this.engine.isGameOver) {
+            this.AI();
+        }
+
         this.engine.ctx.filter = "invert(.46)";
 
         // Draw Dino
@@ -147,5 +152,32 @@ export class Dino {
     StartImmunity(duration = this.defaultImmuneTimer) {
         this.immune = true;
         this.immuneTimer = duration;
+    }
+
+    Jump() {
+        this.dy = -this.jumpForce;
+        this.grounded = false;
+    }
+
+    CrouchJump() {
+        this.dy += this.engine.gravity * 5; 
+    }
+
+    AI() {
+        if (!this.grounded) return;
+
+        const nearestCactus = this.engine.cactus.cacti.find(c => c.x > this.x);
+
+        if (nearestCactus) {
+            const jumpThreshold = 100 + (this.engine.gameSpeed * 5); 
+
+            const distance = nearestCactus.x - this.x;
+
+            if (distance < jumpThreshold) {
+                if (Math.random() > 0.1) { 
+                    this.Jump();
+                }
+            }
+        }
     }
 }

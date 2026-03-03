@@ -17,6 +17,9 @@ requestAnimationFrame(Tick);
 // Input Handling
 window.addEventListener("keydown", (e) => {
     if (e.code === "Space" || e.code === "ArrowUp") {
-        engine.input = true;
+        engine.upInput = true;
+    }
+    if (e.code === "ArrowDown") {
+        engine.downInput = true;
     }
 });
