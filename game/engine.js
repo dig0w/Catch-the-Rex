@@ -4,6 +4,7 @@ import { Dino } from "./dino.js";
 import { Bird } from "./bird.js";
 import { Cactus } from "./cactus.js";
 import { Cloud } from "./cloud.js";
+import { Hayball } from "./hayball.js";
 
 export class RunnerEngine {
     constructor(gameSpeed = 5) {
@@ -38,23 +39,28 @@ export class RunnerEngine {
         this.canvas = document.getElementById('runner-canvas');
         this.ctx = this.canvas.getContext('2d');
 
+        this.objects.push(new Cloud(this));
+
         this.objects.push(new Ground(this));
 
         const bodyStyle = window.getComputedStyle(document.body);
         const bgColor = bodyStyle.backgroundColor;
-        this.startCube = new Cube(this, this.canvas.width, this.canvas.height, bgColor, this.canvas.width / 9);
-        this.objects.push(this.startCube);
+        let feetCube = new Cube(this, 0, 0, bgColor, 0, 0);
+        this.objects.push(feetCube);
 
-        this.dino = new Dino(this);
+        this.cactus = new Cactus(this);
+        this.objects.push(this.cactus);
+
+        this.objects.push(new Hayball(this));
+
+        this.dino = new Dino(this, feetCube);
         this.objects.push(this.dino);
 
         this.bird = new Bird(this);
         this.objects.push(this.bird);
 
-        this.cactus = new Cactus(this);
-        this.objects.push(this.cactus);
-
-        this.objects.push(new Cloud(this));
+        this.startCube = new Cube(this, this.canvas.width, this.canvas.height, bgColor, this.canvas.width / 9);
+        this.startCube.Begin();
 
         this.objects.forEach(object => {
             object.Begin();
@@ -91,13 +97,15 @@ export class RunnerEngine {
         };
 
         if (this.isGameStarted && !this.isGameOver) {
-            if (this.score > 0) this.gameSpeed += 0.00015;
-
             if (this.score > 99999) this.score = 99999
         }
 
         // Clear the canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.objects.forEach(object => {
+            object.Tick();
+        });
 
         this.ctx.font = "25px 'Micro 5'";
         this.ctx.textAlign = "right";
@@ -125,9 +133,7 @@ export class RunnerEngine {
         this.ctx.fillStyle = "black";
         this.ctx.fillText(this.score.toString().padStart(5, '0'), xPos, yPos);
 
-        this.objects.forEach(object => {
-            object.Tick();
-        });
+        this.startCube.Tick();
 
         if (this.isGameOver) {
             this.ctx.textAlign = "center";

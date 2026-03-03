@@ -47,17 +47,21 @@ export class Cactus {
             }
         }
 
+        // Collisions
         this.cacti.forEach(cactus => {
+            // Dino collision - slow down
             if (this.engine.CheckCollision(
                 { x: this.engine.dino.x + 5, y: this.engine.dino.y + 5, width: this.engine.dino.width - 10, height: this.engine.dino.height - 10 },
                 cactus
             ) && !this.engine.dino.immune) {
-                // Dino collision - slow down
-                this.engine.dino.dx -= 8;
-                this.engine.dino.StartImmunity(50);
+                this.engine.dino.Hitted(-8, 50);
             }
 
-            if (this.engine.CheckCollision({ x: this.engine.bird.x + 5, y: this.engine.bird.y + 5, width: this.engine.bird.width - 10, height: this.engine.bird.height - 10 }, cactus)) {
+            // Bird collision - game over
+            if (this.engine.CheckCollision(
+                { x: this.engine.bird.x + 5, y: this.engine.bird.y + 5, width: this.engine.bird.width - 10, height: this.engine.bird.height - 10 },
+                cactus
+            )) {
                 this.engine.GameOver();
             }
         });

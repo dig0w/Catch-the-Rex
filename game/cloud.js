@@ -26,7 +26,7 @@ export class Cloud {
     Tick() {
         this.spawnTimer++;
 
-        if (this.clouds.length < 3 && this.spawnTimer > 150) {
+        if (this.clouds.length < 4 && this.spawnTimer > 150) {
             let randomImg = this.images[Math.floor(Math.random() * this.images.length)];
 
             const maxY = 100;

@@ -21,6 +21,7 @@ export class Cube {
     }
 
     Tick() {
+        this.engine.ctx.filter = "none";
         this.engine.ctx.fillStyle = this.color;
         this.engine.ctx.fillRect(this.x, this.y, this.width, this.height);
 

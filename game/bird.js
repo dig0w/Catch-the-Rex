@@ -14,6 +14,11 @@ export class Bird {
         this.width = 64 / 1.25; // birdImgOpen.width / 1.25
         this.height = 57 / 1.25; // birdImgOpen.height / 1.25
 
+        this.immune = false;
+        this.immuneTimer = 0;
+        this.defaultImmuneTimer = 60;
+        this.isHit = false;
+
         this.x = -((this.engine.canvas.width / 2) - (this.width / 2));
         this.y = 10;
 
@@ -51,7 +56,7 @@ export class Bird {
             if (heightPercent > 0.6) {
                 this.engine.dino.dx -= .05;
             } else if (heightPercent < 0.4) {
-                this.engine.dino.dx += .025;
+                this.engine.dino.dx += .045;
             }
 
             const minX = this.x + 20;
@@ -65,10 +70,21 @@ export class Bird {
                 { x: this.engine.dino.x + 5, y: this.engine.dino.y + 5, width: this.engine.dino.width - 10, height: this.engine.dino.height - 10 }
             ) && !this.engine.dino.immune) {
                 // Dino collision - boost
-                this.engine.dino.dx += 20;
-                this.engine.dino.StartImmunity(100);
+                this.engine.dino.Hitted(20, 100);
                 this.engine.AddBonusPoints(100);
             }
+        }
+
+        // Immunity
+        if (this.immune) {
+            this.immuneTimer--;
+            if (this.immuneTimer <= 0) {
+                this.immune = false;
+            }
+
+            this.engine.ctx.globalAlpha = Math.sin(Date.now() / 50) > 0 ? 0.5 : 1.0;
+        } else {
+            this.engine.ctx.globalAlpha = 1.0;
         }
 
         this.engine.ctx.filter = "invert(.46)";
@@ -81,6 +97,8 @@ export class Bird {
             this.animState = !this.animState;
             this.animTimer = this.defaultAnimTimer;
         }
+
+        this.engine.ctx.globalAlpha = 1.0;
 
         // Move To
         if (this.gotTarget) {
@@ -128,6 +146,15 @@ export class Bird {
         this.xTarget = x;
         this.yTarget = y;
         this.speedTarget = speed;
+    }
+
+    Hitted(boost = 0, duration = this.defaultImmuneTimer) {
+        this.immune = true;
+        this.immuneTimer = duration;
+
+        this.dx += boost;
+        this.isHit = true;
+        this.animTimer = this.defaultAnimTimer;
     }
 
     Jump() {

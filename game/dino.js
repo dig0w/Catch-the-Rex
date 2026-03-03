@@ -1,8 +1,9 @@
 import { Cube } from "./cube.js";
 
 export class Dino {
-    constructor(engine = null) {
+    constructor(engine = null, cube = null) {
         this.engine = engine;
+        this.cube = cube;
 
         this.dinoImg = new Image();
         this.dinoImg.src = '../assets/rex.png';
@@ -23,6 +24,7 @@ export class Dino {
         this.immune = false;
         this.immuneTimer = 0;
         this.defaultImmuneTimer = 60;
+        this.isHit = false;
 
         this.x = 10;
         this.y = this.engine.canvas.height - this.height;
@@ -41,17 +43,15 @@ export class Dino {
     }
 
     Begin() {
-        const bodyStyle = window.getComputedStyle(document.body);
-        const bgColor = bodyStyle.backgroundColor;
-        this.cube = new Cube(this.engine, (this.width / 3) * 2, this.height / 2, bgColor, this.x + (this.width / 3) * .5 - 2, this.y + (this.height / 2));
-        this.cube.Begin();
+        this.cube.width = (this.width / 3) * 2;
+        this.cube.height = this.height / 2;
+        this.cube.x = this.x + (this.width / 3) * .5 - 2;
+        this.cube.y = this.y + (this.height / 2);
     }
 
     Tick() {
         this.cube.x = this.x + (this.width / 3) * .5 - 2;
         this.cube.y = this.y + (this.height / 2);
-
-        this.cube.Tick();
 
         // Velocities
         this.x += this.dx;
@@ -88,12 +88,14 @@ export class Dino {
         this.engine.ctx.filter = "invert(.46)";
 
         // Draw Dino
-        this.engine.ctx.drawImage(this.dy != 0 || this.engine.gameSpeed == 0 ? this.dinoImg : (this.animState ? this.dinoRunLImg : this.dinoRunRImg),
+        this.engine.ctx.drawImage(
+            this.isHit ? this.dinoDeadImg : this.dy != 0 || this.engine.gameSpeed == 0 ? this.dinoImg : (this.animState ? this.dinoRunLImg : this.dinoRunRImg),
                     this.x, this.y, this.width, this.height);
         this.animTimer--
         if (this.animTimer == 0) {
             this.animState = !this.animState;
             this.animTimer = this.defaultAnimTimer;
+            this.isHit = false;
         }
 
         this.engine.ctx.globalAlpha = 1.0;
@@ -149,9 +151,13 @@ export class Dino {
         this.speedTarget = speed;
     }
 
-    StartImmunity(duration = this.defaultImmuneTimer) {
+    Hitted(boost = 0, duration = this.defaultImmuneTimer) {
         this.immune = true;
         this.immuneTimer = duration;
+
+        this.dx += boost;
+        this.isHit = true;
+        this.animTimer = this.defaultAnimTimer;
     }
 
     Jump() {
@@ -174,7 +180,7 @@ export class Dino {
             const distance = nearestCactus.x - this.x;
 
             if (distance < jumpThreshold) {
-                if (Math.random() > 0.1) { 
+                if (Math.random() > 0.90) { 
                     this.Jump();
                 }
             }
