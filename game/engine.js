@@ -11,7 +11,7 @@ export class RunnerEngine {
         this.isGameStarted = false;
         this.isGameOver = false;
 
-        this.defaultGameOverTimer = 30;
+        this.defaultGameOverTimer = 30 / 60;
         this.gameOverTimer = 0;
 
         this.score = 0;
@@ -33,6 +33,12 @@ export class RunnerEngine {
         this.dino = null;
         this.bird = null;
         this.cactus = null;
+
+        this.pointSound = new Audio("../assets/point.wav");
+        this.pointSound.volume = 0.5;
+        this.bgMusic = new Audio("../assets/catchtherex_them_v2.wav");
+        this.bgMusic.volume = 0.5;
+        this.bgMusic.loop = true;
     }
 
     Begin() {
@@ -125,7 +131,7 @@ export class RunnerEngine {
         const bodyStyle = window.getComputedStyle(document.body);
         const bgColor = bodyStyle.backgroundColor;
         this.ctx.strokeStyle = bgColor;
-        this.ctx.lineWidth = 10;
+        this.ctx.lineWidth = 6;
 
         // High Score (Greyed out)
         if (this.highScore > 0) {
@@ -181,12 +187,17 @@ export class RunnerEngine {
         this.gameSpeed = this.defaultGameSpeed;
         this.score = 0;
 
+        this.bgMusic.play();
+
         this.isGameStarted = true;
     }
 
     GameOver() {
         this.isGameOver = true;
         this.gameOverTimer = this.defaultGameOverTimer;
+
+        this.bgMusic.pause();
+        this.bgMusic.currentTime = 0;
 
         if (this.score > this.highScore) {
             this.highScore = this.score;
@@ -204,6 +215,16 @@ export class RunnerEngine {
         this.gameSpeed = this.defaultGameSpeed;
         this.score = 0;
         this.isGameOver = false;
+
+        this.bgMusic.play();
+    }
+
+    DestroyObject(obj) {
+        const index = this.objects.indexOf(obj);
+        if (index !== -1) {
+            this.objects[index] = null;
+            this.objects.splice(index, 1);
+        }
     }
 
     CheckCollision(rect1, rect2) {

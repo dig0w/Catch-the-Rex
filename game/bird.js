@@ -1,3 +1,5 @@
+import { FloatingText } from "./floatingText.js";
+
 export class Bird {
     constructor(engine = null) {
         this.engine = engine;
@@ -72,6 +74,9 @@ export class Bird {
                 // Dino collision - boost
                 this.engine.dino.Hitted(20, 100 / 60);
                 this.engine.AddBonusPoints(100);
+
+                this.engine.objects.push(new FloatingText(this.engine, this.engine.dino.x, this.engine.dino.y - this.engine.dino.height, "+100"));
+                this.engine.pointSound.play();
             }
         }
 

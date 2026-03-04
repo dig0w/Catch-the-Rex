@@ -1,7 +1,8 @@
-
 to do:
-add sounds
-on points, spawn +100 on hit, moving and fading up
+death/gameover sound
+stun sound
+volume slider somehow
+leaderboard
 
 bird
     player
@@ -25,7 +26,7 @@ cacti
 
 hayballs
     procedurally generated scrolling
-    throws to bird with collision to dino
+    // throws to bird with collision to dino
     bird slows down with collision to hayballs
     bounce and roll
     scroll faster then the game speed

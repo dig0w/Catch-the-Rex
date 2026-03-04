@@ -37,3 +37,9 @@ window.addEventListener("keydown", (e) => {
         engine.downInput = true;
     }
 });
+
+window.addEventListener("pointerdown", (e) => {
+    if (e.target.id == "runner-canvas") {
+        engine.upInput = true;
+    }
+});

@@ -1,6 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
 body {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
     background-color: rgb(247, 247, 247);
 
     font-family: "Open Sans", sans-serif;
@@ -9,6 +13,7 @@ body {
 
 header {
     margin-top: 3rem;
+    padding: 0 1rem;
 
     display: flex;
     flex-direction: column;
@@ -18,8 +23,75 @@ header {
 
 header h1, header p {
     margin: 0;
+
+    text-align: center;
 }
 
 .runner-container {
     margin: 3rem auto 0;
+
+    max-width: 600px; 
+    width: 95%;
+    height: auto;
+}
+
+#runner-canvas {
+    width: 100%;
+    height: auto;
+
+    image-rendering: pixelated; 
+    display: block;
+}
+
+main p, .leaderboard-container {
+    margin: 3rem auto 0;
+
+    max-width: 600px;
+    width: 95%;
+    height: auto;
+
+    text-align: center;
+}
+
+.leaderboard-container {
+    margin: 3rem auto 0;
+
+    max-width: 300px;
+    width: 95%;
+    height: auto;
+
+    text-align: center;
+}
+.leaderboard-container table {
+    margin: 0 auto 0;
+
+    width: 100%;
+}
+.leaderboard-container table tr > *:first-child {
+    text-align: left;
+}
+.leaderboard-container table tr > *:last-child {
+    text-align: right;
+}
+.leaderboard-container table td {
+    padding: 0 1rem;
+}
+
+
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+
+    padding: 1rem 0;
+
+    width: 100%;
+    max-width: 600px;
+
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+
+    font-size: 18px;
 }
