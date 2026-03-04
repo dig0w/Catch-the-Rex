@@ -1,6 +1,7 @@
 
 to do:
 add sounds
+on points, spawn +100 on hit, moving and fading up
 
 bird
     player
