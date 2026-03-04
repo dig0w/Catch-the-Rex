@@ -11,7 +11,10 @@ export class Cloud {
         this.images = [];
 
         this.clouds = [];
+
         this.spawnTimer = 0;
+        this.minSpawnTime = 150 / 60;
+        this.maxSpawnTime = 600 / 60;
     }
 
     Begin() {
@@ -23,10 +26,11 @@ export class Cloud {
         }
     }
 
-    Tick() {
-        this.spawnTimer++;
+    Tick(deltaTime) {
+        this.spawnTimer += deltaTime;
 
-        if (this.clouds.length < 4 && this.spawnTimer > 150) {
+        if (this.spawnTimer > (Math.random() * (this.maxSpawnTime - this.minSpawnTime) + this.minSpawnTime) 
+                                                      * (this.engine.defaultGameSpeed / this.engine.gameSpeed)) {
             let randomImg = this.images[Math.floor(Math.random() * this.images.length)];
 
             const maxY = 100;
@@ -53,13 +57,15 @@ export class Cloud {
         }
 
         for (let i = this.clouds.length - 1; i >= 0; i--) {
-            this.clouds[i].x -= this.engine.gameSpeed * this.clouds[i].speedFactor;
+            this.clouds[i].x -= this.engine.gameSpeed * this.clouds[i].speedFactor * deltaTime * 60;
 
             if (this.clouds[i].x + this.clouds[i].width < -50) {
                 this.clouds.splice(i, 1);
             }
         }
+    }
 
+    Draw() {
         this.engine.ctx.filter = "invert(.46)";
         this.engine.ctx.globalAlpha = 0.5;
 
@@ -67,6 +73,7 @@ export class Cloud {
             this.engine.ctx.drawImage(cloud.img, cloud.x, cloud.y, cloud.width, cloud.height);
         });
 
+        this.engine.ctx.filter = "none";
         this.engine.ctx.globalAlpha = 1;
     }
 

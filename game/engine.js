@@ -67,7 +67,7 @@ export class RunnerEngine {
         });
     }
 
-    Tick() {
+    Tick(deltaTime) {
         if (this.upInput) {
             this.upInput = false;
 
@@ -100,11 +100,19 @@ export class RunnerEngine {
             if (this.score > 99999) this.score = 99999
         }
 
+        this.objects.forEach(object => {
+            object.Tick(deltaTime);
+        });
+
+        this.startCube.Tick(deltaTime);
+    }
+
+    Draw() {
         // Clear the canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.objects.forEach(object => {
-            object.Tick();
+            object.Draw();
         });
 
         this.ctx.font = "25px 'Micro 5'";
@@ -120,11 +128,13 @@ export class RunnerEngine {
         this.ctx.lineWidth = 10;
 
         // High Score (Greyed out)
-        this.ctx.filter = "none";
-        this.ctx.strokeText(`HI ${this.highScore.toString().padStart(5, '0')}`, xPos - 70, yPos);
-        this.ctx.filter = "invert(.46)";
-        this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-        this.ctx.fillText(`HI ${this.highScore.toString().padStart(5, '0')}`, xPos - 70, yPos);
+        if (this.highScore > 0) {
+            this.ctx.filter = "none";
+            this.ctx.strokeText(`HI ${this.highScore.toString().padStart(5, '0')}`, xPos - 70, yPos);
+            this.ctx.filter = "invert(.46)";
+            this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+            this.ctx.fillText(`HI ${this.highScore.toString().padStart(5, '0')}`, xPos - 70, yPos);
+        }
 
         // Current Score
         this.ctx.filter = "none";
@@ -133,7 +143,7 @@ export class RunnerEngine {
         this.ctx.fillStyle = "black";
         this.ctx.fillText(this.score.toString().padStart(5, '0'), xPos, yPos);
 
-        this.startCube.Tick();
+        this.startCube.Draw();
 
         if (this.isGameOver) {
             this.ctx.textAlign = "center";

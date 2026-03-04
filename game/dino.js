@@ -15,15 +15,15 @@ export class Dino {
         this.dinoRunRImg.src = '../assets/rex_right_up.png';
 
         this.animState = false;
-        this.defaultAnimTimer = 5;
+        this.defaultAnimTimer = 0.0833;
         this.animTimer = this.defaultAnimTimer;
 
         this.width = 54 / 1.25; // dinoImg.width / 1.25
         this.height = 60 / 1.25; // dinoImg.height / 1.25
 
         this.immune = false;
+        this.defaultImmuneTimer = 1;
         this.immuneTimer = 0;
-        this.defaultImmuneTimer = 60;
         this.isHit = false;
 
         this.x = 10;
@@ -49,35 +49,32 @@ export class Dino {
         this.cube.y = this.y + (this.height / 2);
     }
 
-    Tick() {
+    Tick(deltaTime) {
         this.cube.x = this.x + (this.width / 3) * .5 - 2;
         this.cube.y = this.y + (this.height / 2);
 
         // Velocities
-        this.x += this.dx;
-        this.dx *= this.friction;
+        this.x += this.dx * deltaTime * 60;
+        this.dx *= Math.pow(this.friction, deltaTime * 60);
 
         if (!this.grounded) {
-            this.dy += this.engine.gravity;
-            this.y += this.dy;
+            this.dy += this.engine.gravity * deltaTime * 60;
+            this.y += this.dy * deltaTime * 60;
         }
 
-        if (this.y + this.height > this.engine.canvas.height) {
-            this.y = this.engine.canvas.height - this.height;
+    const floorY = this.engine.canvas.height - this.height;
+        if (this.y > floorY) {
+            this.y = floorY;
             this.dy = 0;
             this.grounded = true;
         }
 
         // Immunity
         if (this.immune) {
-            this.immuneTimer--;
+            this.immuneTimer -= deltaTime;
             if (this.immuneTimer <= 0) {
                 this.immune = false;
             }
-
-            this.engine.ctx.globalAlpha = Math.sin(Date.now() / 50) > 0 ? 0.5 : 1.0;
-        } else {
-            this.engine.ctx.globalAlpha = 1.0;
         }
 
         // AI
@@ -85,20 +82,13 @@ export class Dino {
             this.AI();
         }
 
-        this.engine.ctx.filter = "invert(.46)";
-
-        // Draw Dino
-        this.engine.ctx.drawImage(
-            this.isHit ? this.dinoDeadImg : this.dy != 0 || this.engine.gameSpeed == 0 ? this.dinoImg : (this.animState ? this.dinoRunLImg : this.dinoRunRImg),
-                    this.x, this.y, this.width, this.height);
-        this.animTimer--
-        if (this.animTimer == 0) {
+        // Dino Anim
+        this.animTimer -= deltaTime;
+        if (this.animTimer <= 0) {
             this.animState = !this.animState;
-            this.animTimer = this.defaultAnimTimer;
+            this.animTimer += this.defaultAnimTimer;
             this.isHit = false;
         }
-
-        this.engine.ctx.globalAlpha = 1.0;
 
         // Move To
         if (this.gotTarget) {
@@ -108,19 +98,38 @@ export class Dino {
             if (Math.abs(dx) < this.speedTarget) {
                 this.x = this.xTarget;
             } else {
-                this.x += Math.sign(dx) * this.speedTarget;
+                this.x += Math.sign(dx) * this.speedTarget * deltaTime * 60;
             }
 
             if (Math.abs(dy) < this.speedTarget) {
                 this.y = this.yTarget;
             } else {
-                this.y += Math.sign(dy) * this.speedTarget;
+                this.y += Math.sign(dy) * this.speedTarget * deltaTime * 60;
             }
 
             if (this.x === this.xTarget && this.y === this.yTarget) {
                 this.gotTarget = false;
             }
         }
+    }
+
+    Draw() {
+        this.engine.ctx.filter = "invert(.46)";
+
+        // Immunity
+        if (this.immune && !this.engine.isGameOver) {
+            this.engine.ctx.globalAlpha = Math.sin(Date.now() / 50) > 0 ? 0.5 : 1.0;
+        } else {
+            this.engine.ctx.globalAlpha = 1.0;
+        }
+
+        // Draw Dino
+        this.engine.ctx.drawImage(
+            this.isHit ? this.dinoDeadImg : this.dy != 0 || this.engine.gameSpeed == 0 ? this.dinoImg : (this.animState ? this.dinoRunLImg : this.dinoRunRImg),
+                    this.x, this.y, this.width, this.height);
+
+        this.engine.ctx.filter = "none";
+        this.engine.ctx.globalAlpha = 1.0;
     }
 
     GameStart() {
@@ -137,6 +146,10 @@ export class Dino {
         this.dx = 0;
         this.dy = 0;
         this.grounded = true;
+
+        this.immune = false;
+        this.immuneTimer = 0;
+        this.isHit = false;
 
         this.gotTarget = false;
         this.xTarget = null;
@@ -180,7 +193,7 @@ export class Dino {
             const distance = nearestCactus.x - this.x;
 
             if (distance < jumpThreshold) {
-                if (Math.random() > 0.90) { 
+                if (Math.random() > 0) {
                     this.Jump();
                 }
             }

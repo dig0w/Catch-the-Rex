@@ -1,6 +1,6 @@
 
 to do:
-fixed fps
+add sounds
 
 bird
     player

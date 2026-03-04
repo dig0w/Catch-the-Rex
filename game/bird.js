@@ -8,15 +8,15 @@ export class Bird {
         this.birdImgClosed.src = 'assets/pterodactyl_closed.png';
 
         this.animState = false;
-        this.defaultAnimTimer = 10;
+        this.defaultAnimTimer = 10 / 60;
         this.animTimer = this.defaultAnimTimer;
 
         this.width = 64 / 1.25; // birdImgOpen.width / 1.25
         this.height = 57 / 1.25; // birdImgOpen.height / 1.25
 
         this.immune = false;
+        this.defaultImmuneTimer = 0.75;
         this.immuneTimer = 0;
-        this.defaultImmuneTimer = 60;
         this.isHit = false;
 
         this.x = -((this.engine.canvas.width / 2) - (this.width / 2));
@@ -38,10 +38,10 @@ export class Bird {
 
     }
 
-    Tick() {
+    Tick(deltaTime) {
         if (!this.gotTarget && this.engine.isGameStarted && !this.engine.isGameOver) {
-            this.dy += this.engine.gravity / 2;
-            this.y += this.dy;
+            this.dy += (this.engine.gravity / 2) * deltaTime * 60;
+            this.y += this.dy * deltaTime * 60;
 
             const floorY = this.engine.canvas.height - this.height - 10;
             if (this.y > floorY) {
@@ -54,9 +54,9 @@ export class Bird {
 
             // Dino Moves
             if (heightPercent > 0.6) {
-                this.engine.dino.dx -= .05;
+                this.engine.dino.dx -= .05 * deltaTime * 60;
             } else if (heightPercent < 0.4) {
-                this.engine.dino.dx += .045;
+                this.engine.dino.dx += .045 * deltaTime * 60;
             }
 
             const minX = this.x + 20;
@@ -68,37 +68,27 @@ export class Bird {
             if (this.engine.CheckCollision(
                 { x: this.x + 5, y: this.y + 5, width: this.width - 10, height: this.height - 10 },
                 { x: this.engine.dino.x + 5, y: this.engine.dino.y + 5, width: this.engine.dino.width - 10, height: this.engine.dino.height - 10 }
-            ) && !this.engine.dino.immune) {
+            )) {
                 // Dino collision - boost
-                this.engine.dino.Hitted(20, 100);
+                this.engine.dino.Hitted(20, 100 / 60);
                 this.engine.AddBonusPoints(100);
             }
         }
 
         // Immunity
         if (this.immune) {
-            this.immuneTimer--;
+            this.immuneTimer -= deltaTime;
             if (this.immuneTimer <= 0) {
                 this.immune = false;
             }
-
-            this.engine.ctx.globalAlpha = Math.sin(Date.now() / 50) > 0 ? 0.5 : 1.0;
-        } else {
-            this.engine.ctx.globalAlpha = 1.0;
         }
 
-        this.engine.ctx.filter = "invert(.46)";
-
-        // Draw Bird
-        this.engine.ctx.drawImage(this.animState ? this.birdImgOpen : this.birdImgClosed,
-                                  this.x, this.y, this.width, this.height);
-        this.animTimer--
-        if (this.animTimer == 0) {
+        // Bird Anim
+        this.animTimer -= deltaTime;
+        if (this.animTimer <= 0) {
             this.animState = !this.animState;
-            this.animTimer = this.defaultAnimTimer;
+            this.animTimer += this.defaultAnimTimer;
         }
-
-        this.engine.ctx.globalAlpha = 1.0;
 
         // Move To
         if (this.gotTarget) {
@@ -108,19 +98,37 @@ export class Bird {
             if (Math.abs(dx) < this.speedTarget) {
                 this.x = this.xTarget;
             } else {
-                this.x += Math.sign(dx) * this.speedTarget;
+                this.x += Math.sign(dx) * this.speedTarget * deltaTime * 60;
             }
 
             if (Math.abs(dy) < this.speedTarget) {
                 this.y = this.yTarget;
             } else {
-                this.y += Math.sign(dy) * this.speedTarget;
+                this.y += Math.sign(dy) * this.speedTarget * deltaTime * 60;
             }
 
             if (this.x === this.xTarget && this.y === this.yTarget) {
                 this.gotTarget = false;
             }
         }
+    }
+
+    Draw() {
+        this.engine.ctx.filter = "invert(.46)";
+
+        // Immunity
+        if (this.immune && !this.engine.isGameOver) {
+            this.engine.ctx.globalAlpha = Math.sin(Date.now() / 50) > 0 ? 0.5 : 1.0;
+        } else {
+            this.engine.ctx.globalAlpha = 1.0;
+        }
+
+        // Draw Bird
+        this.engine.ctx.drawImage(this.animState ? this.birdImgOpen : this.birdImgClosed,
+                                  this.x, this.y, this.width, this.height);
+
+        this.engine.ctx.filter = "none";
+        this.engine.ctx.globalAlpha = 1.0;
     }
 
     GameStart() {
@@ -135,6 +143,10 @@ export class Bird {
         this.y = 10;
         this.dy = 0;
 
+        this.immune = false;
+        this.immuneTimer = 0;
+        this.isHit = false;
+
         this.gotTarget = false;
         this.xTarget = null;
         this.yTarget = null;
@@ -145,7 +157,7 @@ export class Bird {
         this.gotTarget = true;
         this.xTarget = x;
         this.yTarget = y;
-        this.speedTarget = speed;
+        this.speedTarget = speed * (5 / this.engine.defaultGameSpeed);
     }
 
     Hitted(boost = 0, duration = this.defaultImmuneTimer) {

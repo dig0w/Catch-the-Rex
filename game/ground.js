@@ -35,9 +35,9 @@ export class Ground {
         }
     }
 
-    Tick() {
+    Tick(deltaTime) {
         for (const tile of this.tiles) {
-            tile.x -= this.engine.gameSpeed;
+            tile.x -= this.engine.gameSpeed * deltaTime * 60;
         }
 
         if (this.tiles[0].x <= -this.tileSize) {
@@ -50,8 +50,9 @@ export class Ground {
                 img: this.images[Math.floor(Math.random() * this.images.length)]
             });
         }
+    }
 
-        // Color
+    Draw() {
         this.engine.ctx.filter = "invert(.46)";
 
         // Draw Ground
@@ -59,7 +60,6 @@ export class Ground {
             this.engine.ctx.drawImage(tile.img, tile.x, this.groundY, this.tileSize, this.tileSize);
         });
 
-        // Reset Filter
         this.engine.ctx.filter = "none";
     }
 

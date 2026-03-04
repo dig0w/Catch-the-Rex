@@ -10,7 +10,10 @@ export class Cactus {
         this.images = [];
 
         this.cacti = [];
+
         this.spawnTimer = 0;
+        this.minSpawnTime = 50 / 60;
+        this.maxSpawnTime = 100 / 60;
     }
 
     Begin() {
@@ -22,10 +25,11 @@ export class Cactus {
         }
     }
 
-    Tick() {
-        this.spawnTimer++;
+    Tick(deltaTime) {
+        this.spawnTimer += deltaTime;
 
-        if (this.spawnTimer > (Math.random() * 50 + 50) * (this.engine.defaultGameSpeed / this.engine.gameSpeed)) {
+        if (this.spawnTimer > (Math.random() * (this.maxSpawnTime - this.minSpawnTime) + this.minSpawnTime) 
+                            * (this.engine.defaultGameSpeed / this.engine.gameSpeed)) {
             let randomImg = this.images[Math.floor(Math.random() * this.images.length)];
             
             this.cacti.push({
@@ -40,7 +44,7 @@ export class Cactus {
         }
 
         for (let i = this.cacti.length - 1; i >= 0; i--) {
-            this.cacti[i].x -= this.engine.gameSpeed;
+            this.cacti[i].x -= this.engine.gameSpeed * deltaTime * 60;
 
             if (this.cacti[i].x + this.cacti[i].width < 0) {
                 this.cacti.splice(i, 1);
@@ -54,7 +58,7 @@ export class Cactus {
                 { x: this.engine.dino.x + 5, y: this.engine.dino.y + 5, width: this.engine.dino.width - 10, height: this.engine.dino.height - 10 },
                 cactus
             ) && !this.engine.dino.immune) {
-                this.engine.dino.Hitted(-8, 50);
+                this.engine.dino.Hitted(-8, 50 / 60);
             }
 
             // Bird collision - game over
@@ -65,12 +69,16 @@ export class Cactus {
                 this.engine.GameOver();
             }
         });
+    }
 
+    Draw() {
         this.engine.ctx.filter = "invert(.46)";
 
         this.cacti.forEach(cactus => {
             this.engine.ctx.drawImage(cactus.img, cactus.x, cactus.y, cactus.width, cactus.height);
         });
+
+        this.engine.ctx.filter = "none";
     }
 
     GameStart() {
