@@ -1,8 +1,8 @@
 to do:
 death/gameover sound
 stun sound
-volume slider somehow
-leaderboard
+jump sound
+backend
 
 bird
     player

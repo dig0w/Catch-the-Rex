@@ -5,6 +5,7 @@ import { Bird } from "./bird.js";
 import { Cactus } from "./cactus.js";
 import { Cloud } from "./cloud.js";
 import { Hayball } from "./hayball.js";
+import { Leaderboard } from "./leaderboard.js";
 
 export class RunnerEngine {
     constructor(gameSpeed = 5) {
@@ -34,10 +35,12 @@ export class RunnerEngine {
         this.bird = null;
         this.cactus = null;
 
+        this.leaderboard = new Leaderboard(this);
+
         this.pointSound = new Audio("../assets/point.wav");
         this.pointSound.volume = 0.5;
         this.bgMusic = new Audio("../assets/catchtherex_them_v2.wav");
-        this.bgMusic.volume = 0.5;
+        this.bgMusic.volume = 0.3;
         this.bgMusic.loop = true;
     }
 
@@ -71,6 +74,8 @@ export class RunnerEngine {
         this.objects.forEach(object => {
             object.Begin();
         });
+
+        this.leaderboard.FetchScores();
     }
 
     Tick(deltaTime) {
@@ -202,6 +207,8 @@ export class RunnerEngine {
         if (this.score > this.highScore) {
             this.highScore = this.score;
             localStorage.setItem("highScore", this.highScore);
+            let name = prompt("Please enter your name:", "-106");
+            this.leaderboard.SubmitScore(name, this.score);
         }
     }
 
@@ -237,5 +244,17 @@ export class RunnerEngine {
     AddBonusPoints(amount) {
         this.score += amount;
         this.gameSpeed += amount * 0.0015;
+    }
+
+    UpdateVolume(vol = 0.5, type = 0) {
+        switch (type) {
+            default:
+            case 0:
+                this.pointSound.volume = vol;
+                break;
+            case 1:
+                this.bgMusic.volume = vol;
+                break;
+        }
     }
 }
