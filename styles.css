@@ -130,9 +130,13 @@ footer a {
     border: 2px solid rgba(0,0,0,.3);
     box-shadow: 5px 5px 0px rgba(0,0,0,0.1);
 
-    color: rgba(0,0,0,.5);
-
     cursor: pointer;
+}
+.settings-trigger > * {
+    width: 2rem;
+    height: 2rem;
+
+    filter: invert(36%);
 }
 .settings-popup {
     padding: 1rem;
@@ -156,13 +160,54 @@ footer a {
     justify-content: space-between;
     gap: .5rem;
 }
+
 .vol-slider {
-    flex: 1 0;
+    -webkit-appearance: none;
+    appearance: none;
 
-    accent-color: rgb(118, 118, 118);
+    width: 100%;
 
-    cursor: pointer;
+    background: transparent;
+
+    cursor: e-resize;
 }
+.vol-slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 8px;
+
+    background: transparent;
+    border: 2px solid rgba(0,0,0,.5);
+}
+.vol-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+
+    width: 12px;
+    height: 20px;
+
+    background: rgb(123,123,123);
+    border: 0;
+    margin-top: -8px;
+
+    box-shadow: 3px 3px 0px rgba(0,0,0,.1);
+}
+.vol-slider::-moz-range-track {
+    height: 8px;
+
+    background: transparent;
+    border: 2px solid rgba(0,0,0,.5);
+}
+.vol-slider::-moz-range-thumb {
+    width: 12px;
+    height: 20px;
+
+    background: rgb(123,123,123);
+    border: 0;
+    border-radius: 0;
+
+    box-shadow: 3px 3px 0px rgba(0,0,0,.1);
+}
+
 .mute-btn {
     width: 2.5rem;
     height: 2.5rem;
@@ -173,16 +218,24 @@ footer a {
 
     background: rgba(255,255,255,.5);
     border: 2px solid rgba(0,0,0,.5);
-
-    color: rgb(118, 118, 118);
+    box-shadow: 3px 3px 0px rgba(0,0,0,.1);
 
     cursor: pointer;
 }
 .settings-trigger:active, .mute-btn:active {
     transform: translate(2px, 2px);
 }
+.mute-btn > * {
+    width: 1.5rem;
+    height: 1.5rem;
 
-/* This fires when the screen stops being landscape */
+    filter: invert(46%);
+}
+.mute-btn > *:first-child {
+    width: 2rem;
+    height: 2rem;
+}
+
 @media (orientation: portrait) {
     .settings-container {
         display: none;

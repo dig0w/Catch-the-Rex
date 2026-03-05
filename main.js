@@ -38,18 +38,18 @@ settingsTrigger.addEventListener("click", () => {
 document.querySelectorAll(".setting").forEach((container, i) => {
     const slider = container.querySelector("input");
     const btn = container.querySelector(".mute-btn");
-    const icon = btn.querySelector(".material-symbols-outlined");
-    slider.value = localStorage.getItem(i == 0 ? "volume" : "music") || 0.5;
+    const icon = btn.querySelector("img");
+    slider.value = localStorage.getItem(i == 0 ? "audio" : "music") || 0.5;
     let lastValue = slider.value;
 
-    const iconType = (i === 0) ? "volume_up" : "music_note";
-    const muteType = (i === 0) ? "volume_off" : "music_off";
+    const iconType = (i === 0) ? "./assets/audio.png" : "./assets/music.png";
+    const muteType = (i === 0) ? "./assets/audio_off.png" : "./assets/music_off.png";
 
     const Update = () => {
         const val = parseFloat(slider.value);
-        icon.textContent = (val > 0) ? iconType : muteType;
+        icon.src = (val > 0) ? iconType : muteType;
         engine.UpdateVolume(val, i);
-        localStorage.setItem(i == 0 ? "volume" : "music", val);
+        localStorage.setItem(i == 0 ? "audio" : "music", val);
     };
 
     btn.addEventListener("click", () => {
