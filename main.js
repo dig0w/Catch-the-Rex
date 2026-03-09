@@ -52,6 +52,8 @@ document.querySelectorAll(".setting").forEach((container, i) => {
         localStorage.setItem(i == 0 ? "audio" : "music", val);
     };
 
+    Update();
+
     btn.addEventListener("click", () => {
         if (slider.value > 0) {
             lastValue = slider.value;
