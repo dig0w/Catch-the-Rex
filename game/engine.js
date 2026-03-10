@@ -39,7 +39,13 @@ export class RunnerEngine {
 
         this.pointSound = new Audio("../assets/point.wav");
         this.pointSound.volume = 0.5;
-        this.bgMusic = new Audio("../assets/catchtherex_them_v2.wav");
+        this.points1000Sound = new Audio("../assets/1000pts.wav");
+        this.points1000Sound.volume = 0.5;
+        this.highscoreSound = new Audio("../assets/highscore.wav");
+        this.highscoreSound.volume = 0.5;
+        this.stunSound = new Audio("../assets/stun.wav");
+        this.stunSound.volume = 0.5;
+        this.bgMusic = new Audio("../assets/catchtherex_theme_v2.wav");
         this.bgMusic.volume = 0.3;
         this.bgMusic.loop = true;
     }
@@ -207,6 +213,9 @@ export class RunnerEngine {
         if (this.score > this.highScore) {
             this.highScore = this.score;
             localStorage.setItem("highScore", this.highScore);
+
+            this.highscoreSound.play();
+
             let name = prompt("Please enter your name:", "-106");
             this.leaderboard.SubmitScore(name, this.score);
         }
@@ -244,6 +253,10 @@ export class RunnerEngine {
     AddBonusPoints(amount) {
         this.score += amount;
         this.gameSpeed += amount * 0.0015;
+
+        if (Math.floor(this.score / 1000) > Math.floor((this.score - amount) / 1000)) {
+            this.points1000Sound.play();
+        }
     }
 
     UpdateVolume(vol = 0.5, type = 0) {
@@ -251,6 +264,9 @@ export class RunnerEngine {
             default:
             case 0:
                 this.pointSound.volume = vol;
+                this.points1000Sound.volume = vol;
+                this.highscoreSound.volume = vol;
+                this.stunSound.volume = vol;
                 break;
             case 1:
                 this.bgMusic.volume = vol;

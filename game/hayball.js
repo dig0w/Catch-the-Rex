@@ -90,6 +90,7 @@ export class Hayball {
             )) {
                 this.engine.dino.dx += 2 * deltaTime * 60;
                 this.engine.bird.Hitted(0, 100 / 60);
+                this.engine.stunSound.play();
             }
         });
     }

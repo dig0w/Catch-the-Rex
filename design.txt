@@ -1,6 +1,5 @@
 to do:
-death/gameover sound
-stun sound
+gameover sound
 jump sound
 backend
 

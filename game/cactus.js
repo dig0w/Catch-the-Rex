@@ -59,6 +59,7 @@ export class Cactus {
                 cactus
             ) && !this.engine.dino.immune) {
                 this.engine.dino.Hitted(-8, 50 / 60);
+                this.engine.stunSound.play();
             }
 
             // Bird collision - game over
