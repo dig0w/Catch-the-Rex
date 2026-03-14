@@ -2,7 +2,7 @@ export class Leaderboard {
     constructor(engine) {
         this.engine = engine;
 
-        this.dbURL = "https://YOUR-PROJECT-ID.firebaseio.com/scores.json";
+        this.dbURL = "https://dino.mreng.cf/api.php";
 
         this.tableBody = document.querySelector(".leaderboard-container table");
 
@@ -11,8 +11,9 @@ export class Leaderboard {
 
     async FetchScores() {
         try {
-            const response = await fetch(`${this.dbURL}?orderBy="score"&limitToLast=10`);
+            const response = await fetch(`${this.dbURL}`);
             const data = await response.json();
+            console.log("Fetched scores", data);
 
             if (!data) return;
 
@@ -27,7 +28,7 @@ export class Leaderboard {
         try {
             await fetch(this.dbURL, {
                 method: 'POST',
-                body: JSON.stringify({ name, score, date: Date.now() }),
+                body: JSON.stringify({ name, score }),
                 headers: { 'Content-Type': 'application/json' }
             });
 
