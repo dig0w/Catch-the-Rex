@@ -1,4 +1,4 @@
 # Dino
 
 # Testing
-Test the game [here](https://ha.mreng.cf)
+Test the game [here](https://dino.mreng.cf)
