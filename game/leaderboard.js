@@ -30,14 +30,18 @@ export class Leaderboard {
         const cleanScore = score > 99999 ? 99999 : score;
 
         try {
-            const ticketRes = await fetch(`${this.dbURL}?ticket=1`);
-            const { ticket } = await ticketRes.json();
+            const ticketRes = await fetch(`${this.dbURL}?ticket=1`, {
+                credentials: 'include'
+            });
+            const ticket = await ticketRes.json();
+            console.log(ticket);
 
             const secret = "f1ce7bdcddb3a098f1684d46db62610c";
             const signature = btoa(`${cleanName}:${cleanScore}:${ticket}:${secret}`);
 
             await fetch(this.dbURL, {
                 method: 'POST',
+                credentials: 'include',
                 body: JSON.stringify({ name: cleanName, score: cleanScore, ticket, sig: signature }),
                 headers: { 'Content-Type': 'application/json' }
             });

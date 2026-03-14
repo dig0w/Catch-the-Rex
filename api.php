@@ -1,7 +1,29 @@
 <?php
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: https://dino.mreng.cf");
-header("Access-Control-Allow-Methods: POST, GET");
+//header("Access-Control-Allow-Origin: http://172.17.2.16");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Credentials: true");
+
+// Anti-Cache Configuration (Defeats Cloudflare caching the GET requests)
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    // If it's just the browser checking permissions, exit immediately with a 200 OK status
+    http_response_code(200);
+    exit();
+}
+
+session_set_cookie_params([
+    'secure' => true,      // Tells the browser to only send the cookie over HTTPS
+    'httponly' => true,    // Prevents JS from reading the session cookie (extra security)
+    'samesite' => 'None'   // Crucial for cross-origin HTTPS cookies
+]);
+
+session_start();
 
 // Error debugging
 // error_reporting(E_ALL);
@@ -26,30 +48,21 @@ if ($conn->connect_error) {
 
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
     if (isset($_GET["ticket"])) {
-        // Clean up old tickets
-        $conn->query("DELETE FROM game_tickets WHERE expires_at < NOW()");
 
-        // Generate ticket
-        $ticket = bin2hex(random_bytes(16));
-        $expires = date("Y-m-d H:i:s", strtotime("+10 seconds"));
+        // Create a short-lived (1 second) ticket for score submission
+        $_SESSION['ticket'] = bin2hex(random_bytes(8));
+        $_SESSION['expires'] = time() + 10;
 
-        $stmt = $conn->prepare("INSERT INTO game_tickets (ticket, expires_at) VALUES (?, ?)");
-        $stmt->bind_param("ss", $ticket, $expires);
+        echo json_encode($_SESSION['ticket']);
 
-        if ($stmt->execute()) {
-            echo json_encode(["ticket" => $ticket]);
-        } else {
-            http_response_code(500);
-            echo json_encode(["error" => "Could not generate ticket"]);
-        }
-        $stmt->close();
     } else if (isset($_GET["scores"])) {
-        // Retrun top $limit scores
+        // Retrun top $limit scores and only the best score for each player
         $limit = (int)$_GET["scores"];
         if ($limit <= 0 || $limit > 15) $limit = 10;
 
-        $sql = "SELECT name, score
+        $sql = "SELECT name, MAX(score) as score
                     FROM leaderboard
+                    GROUP BY name
                     ORDER BY score DESC
                     LIMIT ?";
 
@@ -73,23 +86,21 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     $data = json_decode($json, true);
 
     if(isset($data['name'], $data['score'], $data['ticket'], $data['sig'])){
-        // Ticket validation
-        $ticket = $data['ticket'];
-        $tStmt = $conn->prepare("SELECT id FROM game_tickets WHERE ticket = ? AND expires_at > NOW()");
-        $tStmt->bind_param("s", $ticket);
-        $tStmt->execute();
-        $tResult = $tStmt->get_result();
 
-        if ($tResult->num_rows === 0) {
-            echo json_encode(["status" => "error", "message" => "Invalid or expired ticket."]);
+        // Ticket validation
+        if (!isset($_SESSION['ticket']) || $_SESSION['ticket'] !== $data['ticket']) {
+            echo json_encode(["status" => "error", "message" => "Invalid ticket." . $_SESSION['ticket'] . " vs " . $data['ticket']]);
             exit;
         }
-        $tStmt->close();
+        if (time() > $_SESSION['expires']) {
+            echo json_encode(["status" => "error", "message" => "Ticket expired."]);
+            exit;
+        }
 
         // Verify HMAC signature
         $clientSig = $data['sig'];
         $secret = "f1ce7bdcddb3a098f1684d46db62610c";
-        $expectedSig = base64_encode($data['name'] . ":" . $data['score'] . ":" . $ticket . ":" . $secret);
+        $expectedSig = base64_encode($data['name'] . ":" . $data['score'] . ":" . $data['ticket'] . ":" . $secret);
 
         if ($clientSig !== $expectedSig) {
             echo json_encode(["status" => "error", "message" => "Integrity check failed."]);
@@ -106,15 +117,10 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         }
 
         // Store entry
-        $stmt = $conn->prepare("INSERT INTO leaderboard (name, score, created_at) VALUES (?, ?, NOW())");
+        $stmt = $conn->prepare("INSERT INTO leaderboard (name, score, timestamp) VALUES (?, ?, NOW())");
         $stmt->bind_param("si", $name, $score);
 
         if ($stmt->execute()) {
-            $delStmt = $conn->prepare("DELETE FROM game_tickets WHERE ticket = ?");
-            $delStmt->bind_param("s", $ticket);
-            $delStmt->execute();
-            $delStmt->close();
-
             echo json_encode([
                 "status" => "success",
                 "message" => "Score saved successfully"
@@ -131,6 +137,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
             "status" => "error",
             "message" => "Missing required fields"
         ]);
+        http_response_code(400);
     }
 }
 
