@@ -49,7 +49,6 @@ document.querySelectorAll(".setting").forEach((container, i) => {
         const val = parseFloat(slider.value);
         icon.src = (val > 0) ? iconType : muteType;
         engine.UpdateVolume(val, i);
-        localStorage.setItem(i == 0 ? "audio" : "music", val);
     };
 
     Update();

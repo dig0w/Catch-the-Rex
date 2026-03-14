@@ -81,6 +81,9 @@ export class RunnerEngine {
             object.Begin();
         });
 
+        this.UpdateVolume(localStorage.getItem("audio") || 0.5, 0);
+        this.UpdateVolume(localStorage.getItem("music") || 0.5, 1);
+
         this.leaderboard.FetchScores();
     }
 
@@ -272,5 +275,7 @@ export class RunnerEngine {
                 this.bgMusic.volume = vol;
                 break;
         }
+
+        localStorage.setItem(type == 0 ? "audio" : "music", vol);
     }
 }
