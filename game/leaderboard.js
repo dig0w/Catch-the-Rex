@@ -11,13 +11,14 @@ export class Leaderboard {
 
     async FetchScores() {
         try {
-            const response = await fetch(`${this.dbURL}`);
+            const response = await fetch(`${this.dbURL}?scores=10`);
             const data = await response.json();
             console.log("Fetched scores", data);
 
             if (!data) return;
 
-            this.scores = Object.values(data).sort((a, b) => b.score - a.score);
+            // this.scores = Object.values(data).sort((a, b) => b.score - a.score);
+            this.scores = data;
             this.Render(this.scores);
         } catch (e) {
             console.error("Leaderboard fetch failed", e);
@@ -29,9 +30,15 @@ export class Leaderboard {
         const cleanScore = score > 99999 ? 99999 : score;
 
         try {
+            const ticketRes = await fetch(`${this.dbURL}?ticket=1`);
+            const { ticket } = await ticketRes.json();
+
+            const secret = "f1ce7bdcddb3a098f1684d46db62610c";
+            const signature = btoa(`${cleanName}:${cleanScore}:${ticket}:${secret}`);
+
             await fetch(this.dbURL, {
                 method: 'POST',
-                body: JSON.stringify({ name: cleanName, score: cleanScore }),
+                body: JSON.stringify({ name: cleanName, score: cleanScore, ticket, sig: signature }),
                 headers: { 'Content-Type': 'application/json' }
             });
 
