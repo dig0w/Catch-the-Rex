@@ -25,14 +25,17 @@ export class Leaderboard {
     }
 
     async SubmitScore(name, score) {
+        const cleanName = name.trim().slice(0, 20) || "Anonymous";
+        const cleanScore = score > 99999 ? 99999 : score;
+
         try {
             await fetch(this.dbURL, {
                 method: 'POST',
-                body: JSON.stringify({ name, score }),
+                body: JSON.stringify({ name: cleanName, score: cleanScore }),
                 headers: { 'Content-Type': 'application/json' }
             });
 
-            if (this.scores[this.scores.length - 1].score < score) {
+            if (this.scores[this.scores.length - 1].score < cleanScore || this.scores.length < 10) {
                 await this.FetchScores();
             }
         } catch (e) {
