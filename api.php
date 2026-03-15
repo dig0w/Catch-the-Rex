@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 
         // Create a short-lived (1 second) ticket for score submission
         $_SESSION['ticket'] = bin2hex(random_bytes(8));
-        $_SESSION['expires'] = time() + 10;
+        $_SESSION['expires'] = time() + 1;
 
         echo json_encode($_SESSION['ticket']);
 

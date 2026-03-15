@@ -37,7 +37,14 @@ export class Leaderboard {
             console.log(ticket);
 
             const secret = "f1ce7bdcddb3a098f1684d46db62610c";
-            const signature = btoa(`${cleanName}:${cleanScore}:${ticket}:${secret}`);
+            //const signature = btoa(`${cleanName}:${cleanScore}:${ticket}:${secret}`);
+            const rawString = `${cleanName}:${cleanScore}:${ticket}:${secret}`;
+
+            // Convert the modern UTF-8 string into an array of safe, raw bytes
+            const utf8Bytes = new TextEncoder().encode(rawString);
+
+            // Convert those bytes into a string btoa() can handle, then encode it
+            const signature = btoa(String.fromCharCode(...utf8Bytes));
 
             await fetch(this.dbURL, {
                 method: 'POST',
