@@ -26,25 +26,25 @@ export class FloatingText {
         }
     }
 
-    Draw() {
-        this.engine.ctx.save();
+    Draw(ctx) {
+        ctx.save();
 
-        this.engine.ctx.globalAlpha = this.alpha;
-        this.engine.ctx.font = "20px 'Micro 5'";
-        this.engine.ctx.textAlign = "center";
+        ctx.globalAlpha = this.alpha;
+        ctx.font = "20px 'Micro 5'";
+        ctx.textAlign = "center";
 
         const bodyStyle = window.getComputedStyle(document.body);
         const bgColor = bodyStyle.backgroundColor;
-        this.engine.ctx.strokeStyle = bgColor;
-        this.engine.ctx.lineWidth = 4;
+        ctx.strokeStyle = bgColor;
+        ctx.lineWidth = 4;
 
-        this.engine.ctx.filter = "none";
-        this.engine.ctx.strokeText(this.text, this.x, this.y);
-        this.engine.ctx.filter = "invert(.46)";
-        this.engine.ctx.fillStyle = "black";
-        this.engine.ctx.fillText(this.text, this.x, this.y);
+        ctx.filter = "none";
+        ctx.strokeText(this.text, this.x, this.y);
+        ctx.filter = "invert(.46)";
+        ctx.fillStyle = "black";
+        ctx.fillText(this.text, this.x, this.y);
 
-        this.engine.ctx.restore();
+        ctx.restore();
     }
 
     GameStart() {

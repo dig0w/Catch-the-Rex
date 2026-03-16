@@ -1,43 +1,40 @@
 export class Leaderboard {
+    static dbURL = "https://dino.mreng.cf/api.php";
+
+    #tableBody = null;
+    #scores = [];
+    #engine = null;
+
     constructor(engine) {
-        this.engine = engine;
+        this.#engine = engine;
 
-        this.dbURL = "https://dino.mreng.cf/api.php";
-
-        this.tableBody = document.querySelector(".leaderboard-container table");
-
-        this.scores = [];
+        this.#tableBody = document.querySelector(".leaderboard-container table");
     }
 
     async FetchScores() {
         try {
-            const response = await fetch(`${this.dbURL}?scores=10`);
+            const response = await fetch(`${Leaderboard.dbURL}?scores=10`);
             const data = await response.json();
-            console.log("Fetched scores", data);
-
             if (!data) return;
 
-            // this.scores = Object.values(data).sort((a, b) => b.score - a.score);
-            this.scores = data;
-            this.Render(this.scores);
+            this.#scores = data;
+            this.Render(this.#scores);
         } catch (e) {
             console.error("Leaderboard fetch failed", e);
         }
     }
 
-    async SubmitScore(name, score) {
+    async SubmitScore(name) {
         const cleanName = name.trim().slice(0, 20) || "Anonymous";
-        const cleanScore = score > 99999 ? 99999 : score;
+        const cleanScore = this.#engine.score > 99999 ? 99999 : this.#engine.score;
 
         try {
-            const ticketRes = await fetch(`${this.dbURL}?ticket=1`, {
-                credentials: 'include'
+            const ticketRes = await fetch(`${Leaderboard.dbURL}?ticket=1`, {
+                credentials: "include"
             });
             const ticket = await ticketRes.json();
-            console.log(ticket);
 
             const secret = "f1ce7bdcddb3a098f1684d46db62610c";
-            //const signature = btoa(`${cleanName}:${cleanScore}:${ticket}:${secret}`);
             const rawString = `${cleanName}:${cleanScore}:${ticket}:${secret}`;
 
             // Convert the modern UTF-8 string into an array of safe, raw bytes
@@ -46,14 +43,14 @@ export class Leaderboard {
             // Convert those bytes into a string btoa() can handle, then encode it
             const signature = btoa(String.fromCharCode(...utf8Bytes));
 
-            await fetch(this.dbURL, {
-                method: 'POST',
-                credentials: 'include',
+            await fetch(Leaderboard.dbURL, {
+                method: "POST",
+                credentials: "include",
                 body: JSON.stringify({ name: cleanName, score: cleanScore, ticket, sig: signature }),
-                headers: { 'Content-Type': 'application/json' }
+                headers: { "Content-Type": "application/json" }
             });
 
-            if (this.scores[this.scores.length - 1].score < cleanScore || this.scores.length < 10) {
+            if (this.#scores[this.#scores.length - 1].score < cleanScore || this.#scores.length < 10) {
                 await this.FetchScores();
             }
         } catch (e) {
@@ -62,7 +59,7 @@ export class Leaderboard {
     }
 
     Render(scores) {
-        this.tableBody.innerHTML = "";
+        this.#tableBody.innerHTML = "";
 
         scores.forEach(entry => {
             const row = `
@@ -70,7 +67,7 @@ export class Leaderboard {
                     <td>${entry.name}</td>
                     <td>${entry.score}</td>
                 </tr>`;
-            this.tableBody.innerHTML += row;
+            this.#tableBody.innerHTML += row;
         });
     }
 }

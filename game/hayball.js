@@ -1,39 +1,42 @@
 export class Hayball {
+    #engine = null;
+
+    static assets = [
+        "../assets/hayball0.png",
+        "../assets/hayball1.png"
+    ];
+    #images = [];
+    #hayballs = [];
+
+    static minSpawnTime = 400 / 60;
+    static maxSpawnTime = 600 / 60;
+    #spawnTimer = 0;
+
     constructor(engine = null) {
-        this.engine = engine;
-
-        this.assets = [
-            '../assets/hayball0.png',
-            '../assets/hayball1.png'
-        ]
-        this.images = [];
-
-        this.hayballs = [];
-
-        this.spawnTimer = 0;
-        this.minSpawnTime = 400 / 60;
-        this.maxSpawnTime = 600 / 60;
+        this.#engine = engine;
     }
 
+    get hayballs() { return this.#hayballs; }
+
     Begin() {
-        for (const asset of this.assets) {
+        for (const asset of Hayball.assets) {
             const img = new Image();
             img.src = asset;
 
-            this.images.push(img);
+            this.#images.push(img);
         }
     }
 
     Tick(deltaTime) {
-        this.spawnTimer += deltaTime;
+        this.#spawnTimer += deltaTime;
 
-        if (this.engine.score >= 400 && this.spawnTimer > (Math.random() * (this.maxSpawnTime - this.minSpawnTime) + this.minSpawnTime) 
-                                                        * (this.engine.defaultGameSpeed / this.engine.gameSpeed)) {
-            let randomImg = this.images[Math.floor(Math.random() * this.images.length)];
+        if (this.#engine.score >= 400 && this.#spawnTimer > (Math.random() * (Hayball.maxSpawnTime - Hayball.minSpawnTime) + Hayball.minSpawnTime) 
+                                                        * (this.#engine.defaultGameSpeed / this.#engine.gameSpeed)) {
+            let randomImg = this.#images[Math.floor(Math.random() * this.#images.length)];
 
-            this.hayballs.push({
-                x: this.engine.canvas.width,
-                y: this.engine.canvas.height - randomImg.height - 5,
+            this.#hayballs.push({
+                x: this.#engine.canvas.width,
+                y: this.#engine.canvas.height - randomImg.height - 5,
                 width: randomImg.width * 1.25,
                 height: randomImg.height * 1.25,
                 img: randomImg,
@@ -47,20 +50,20 @@ export class Hayball {
                 grounded: false
             });
 
-            this.spawnTimer = 0;
+            this.#spawnTimer = 0;
         }
 
-        for (let i = this.hayballs.length - 1; i >= 0; i--) {
-            let hayball = this.hayballs[i];
+        for (let i = this.#hayballs.length - 1; i >= 0; i--) {
+            let hayball = this.#hayballs[i];
 
-            hayball.x -= this.engine.gameSpeed * hayball.speedFactor * deltaTime * 60;
+            hayball.x -= this.#engine.gameSpeed * hayball.speedFactor * deltaTime * 60;
             hayball.x += hayball.dx * deltaTime * 60;
             hayball.dx *= Math.pow(hayball.friction, deltaTime * 60);
 
-            hayball.dy += this.engine.gravity / 4 * deltaTime * 60;
+            hayball.dy += this.#engine.gravity / 4 * deltaTime * 60;
             hayball.y += hayball.dy * deltaTime * 60;
 
-            const floorY = this.engine.canvas.height - hayball.height - 5;
+            const floorY = this.#engine.canvas.height - hayball.height - 5;
             if (hayball.y > floorY) {
                 hayball.y = floorY;
                 hayball.dy = -hayball.bounciness * hayball.friction;
@@ -69,44 +72,36 @@ export class Hayball {
             hayball.angle += hayball.rotationSpeed * deltaTime * 60;
 
             if (hayball.x + hayball.width < -100) {
-                this.hayballs.splice(i, 1);
+                this.#hayballs.splice(i, 1);
             }
         }
 
         // Collisions
-        this.hayballs.forEach(hayball => {
-            // // Dino collision - throw to bird
-            // if (this.engine.CheckCollision(
-            //     { x: this.engine.dino.x + 5, y: this.engine.dino.y + 5, width: this.engine.dino.width - 10, height: this.engine.dino.height - 10 },
-            //     hayball
-            // ) && !this.engine.dino.immune) {
-                
-            // }
-
+        this.#hayballs.forEach(hayball => {
             // Bird collision - boosts dino
-            if (this.engine.CheckCollision(
-                { x: this.engine.bird.x + 5, y: this.engine.bird.y + 5, width: this.engine.bird.width - 10, height: this.engine.bird.height - 10 },
+            if (this.#engine.CheckCollision(
+                { x: this.#engine.bird.x + 5, y: this.#engine.bird.y + 5, width: this.#engine.bird.width - 10, height: this.#engine.bird.height - 10 },
                 hayball
             )) {
-                this.engine.dino.dx += 2 * deltaTime * 60;
-                this.engine.bird.Hitted(0, 100 / 60);
-                this.engine.stunSound.play();
+                this.#engine.dino.dx += 2 * deltaTime * 60;
+                this.#engine.bird.Hitted(0, 100 / 60);
+                this.#engine.stunSound.play();
             }
         });
     }
 
-    Draw() {
-        this.engine.ctx.filter = "invert(.46)";
+    Draw(ctx) {
+        ctx.filter = "invert(.46)";
 
-        this.hayballs.forEach(hayball => {
-            this.engine.ctx.save();
-            this.engine.ctx.translate(hayball.x + hayball.width / 2, hayball.y + hayball.height / 2);
-            this.engine.ctx.rotate(-hayball.angle);
-            this.engine.ctx.drawImage(hayball.img, -hayball.width / 2, -hayball.height / 2, hayball.width, hayball.height);
-            this.engine.ctx.restore();
+        this.#hayballs.forEach(hayball => {
+            ctx.save();
+            ctx.translate(hayball.x + hayball.width / 2, hayball.y + hayball.height / 2);
+            ctx.rotate(-hayball.angle);
+            ctx.drawImage(hayball.img, -hayball.width / 2, -hayball.height / 2, hayball.width, hayball.height);
+            ctx.restore();
         });
 
-        this.engine.ctx.filter = "none";
+        ctx.filter = "none";
     }
 
     GameStart() {
@@ -118,6 +113,6 @@ export class Hayball {
     }
 
     ResetGame() {
-        this.hayballs = [];
+        this.#hayballs = [];
     }
 }

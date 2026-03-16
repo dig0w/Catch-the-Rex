@@ -8,24 +8,32 @@ import { Hayball } from "./hayball.js";
 import { Leaderboard } from "./leaderboard.js";
 
 export class RunnerEngine {
+    #isGameStarted = false;
+    #isGameOver = false;
+    static defaultGameOverTimer = 30 / 60;
+    #gameOverTimer = 0;
+
+    #score = 0;
+    #highScore = localStorage.getItem("highScore") || 0;
+
+    #defaultGameSpeed = 5;
+    #gameSpeed = 0;
+    static gravity = 0.6;
+
+    #canvas = null;
+    #ctx = null;
+    #objects = [];
+
+    #leaderboard = new Leaderboard(this);
+
+    #pointSound = new Audio("../assets/point.wav");
+    #points1000Sound = new Audio("../assets/1000pts.wav");
+    #highScoreSound = new Audio("../assets/highscore.wav");
+    #stunSound = new Audio("../assets/stun.wav");
+    #bgMusic = new Audio("../assets/catchtherex_theme_v2.wav");
+
     constructor(gameSpeed = 5) {
-        this.isGameStarted = false;
-        this.isGameOver = false;
-
-        this.defaultGameOverTimer = 30 / 60;
-        this.gameOverTimer = 0;
-
-        this.score = 0;
-        this.highScore = localStorage.getItem("highScore") || 0;
-
-        this.defaultGameSpeed = gameSpeed;
-        this.gameSpeed = 0;
-        this.gravity = 0.6;
-
-        this.canvas = null;
-        this.ctx = null;
-
-        this.objects = [];
+        this.#defaultGameSpeed = gameSpeed;
 
         this.upInput = false;
         this.downInput = false;
@@ -35,65 +43,68 @@ export class RunnerEngine {
         this.bird = null;
         this.cactus = null;
 
-        this.leaderboard = new Leaderboard(this);
-
-        this.pointSound = new Audio("../assets/point.wav");
-        this.pointSound.volume = 0.5;
-        this.points1000Sound = new Audio("../assets/1000pts.wav");
-        this.points1000Sound.volume = 0.5;
-        this.highscoreSound = new Audio("../assets/highscore.wav");
-        this.highscoreSound.volume = 0.5;
-        this.stunSound = new Audio("../assets/stun.wav");
-        this.stunSound.volume = 0.5;
-        this.bgMusic = new Audio("../assets/catchtherex_theme_v2.wav");
-        this.bgMusic.volume = 0.3;
-        this.bgMusic.loop = true;
+        this.#pointSound.volume = 0.5;
+        this.#points1000Sound.volume = 0.5;
+        this.#highScoreSound.volume = 0.5;
+        this.#stunSound.volume = 0.5;
+        this.#bgMusic.volume = 0.3;
+        this.#bgMusic.loop = true;
     }
 
+    get isGameStarted() { return this.#isGameStarted; }
+    get isGameOver() { return this.#isGameOver; }
+
+    get score() { return this.#score; }
+
+    get defaultGameSpeed() { return this.#defaultGameSpeed; }
+    get gameSpeed() { return this.#gameSpeed; }
+    get gravity() { return RunnerEngine.gravity; }
+
+    get canvas() { return this.#canvas; }
+
+    get stunSound() { return this.#stunSound; }
+
     Begin() {
-        this.canvas = document.getElementById('runner-canvas');
-        this.ctx = this.canvas.getContext('2d');
+        this.#canvas = document.getElementById("runner-canvas");
+        this.#ctx = this.#canvas.getContext("2d");
 
-        this.objects.push(new Cloud(this));
+        this.#objects.push(new Cloud(this));
 
-        this.objects.push(new Ground(this));
+        this.#objects.push(new Ground(this));
+
+        this.cactus = new Cactus(this);
+        this.#objects.push(this.cactus);
+
+        this.#objects.push(new Hayball(this));
+
+        this.dino = new Dino(this);
+        this.#objects.push(this.dino);
+
+        this.bird = new Bird(this);
+        this.#objects.push(this.bird);
 
         const bodyStyle = window.getComputedStyle(document.body);
         const bgColor = bodyStyle.backgroundColor;
-        let feetCube = new Cube(this, 0, 0, bgColor, 0, 0);
-        this.objects.push(feetCube);
-
-        this.cactus = new Cactus(this);
-        this.objects.push(this.cactus);
-
-        this.objects.push(new Hayball(this));
-
-        this.dino = new Dino(this, feetCube);
-        this.objects.push(this.dino);
-
-        this.bird = new Bird(this);
-        this.objects.push(this.bird);
-
-        this.startCube = new Cube(this, this.canvas.width, this.canvas.height, bgColor, this.canvas.width / 9);
+        this.startCube = new Cube(this, this.#canvas.width, this.#canvas.height, bgColor, this.#canvas.width / 9);
         this.startCube.Begin();
 
-        this.objects.forEach(object => {
+        this.#objects.forEach(object => {
             object.Begin();
         });
 
         this.UpdateVolume(localStorage.getItem("audio") || 0.5, 0);
         this.UpdateVolume(localStorage.getItem("music") || 0.5, 1);
 
-        this.leaderboard.FetchScores();
+        this.#leaderboard.FetchScores();
     }
 
     Tick(deltaTime) {
         if (this.upInput) {
             this.upInput = false;
 
-            if (this.isGameOver) {
+            if (this.#isGameOver) {
                 this.ResetGame();
-            } else if (!this.isGameStarted) {
+            } else if (!this.#isGameStarted) {
                 this.GameStart();
             } else {
                 this.bird.Jump();
@@ -102,25 +113,25 @@ export class RunnerEngine {
         if (this.downInput) {
             this.downInput = false;
 
-            if (this.isGameOver) {
+            if (this.#isGameOver) {
                 this.ResetGame();
-            } else if (!this.isGameStarted) {
+            } else if (!this.#isGameStarted) {
                 this.GameStart();
             } else {
                 this.bird.CrouchJump();
             }
         }
 
-        if (this.isGameOver) {
-            this.gameOverTimer--;
+        if (this.#isGameOver) {
+            this.#gameOverTimer--;
             return;
         };
 
-        if (this.isGameStarted && !this.isGameOver) {
-            if (this.score > 99999) this.score = 99999
+        if (this.#isGameStarted && !this.#isGameOver) {
+            if (this.#score > 99999) this.#score = 99999
         }
 
-        this.objects.forEach(object => {
+        this.#objects.forEach(object => {
             object.Tick(deltaTime);
         });
 
@@ -129,120 +140,124 @@ export class RunnerEngine {
 
     Draw() {
         // Clear the canvas
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
 
-        this.objects.forEach(object => {
-            object.Draw();
+        this.#objects.forEach(object => {
+            object.Draw(this.#ctx);
         });
 
-        this.ctx.font = "25px 'Micro 5'";
-        this.ctx.textAlign = "right";
+        this.#ctx.font = "25px 'Micro 5'";
+        this.#ctx.textAlign = "right";
 
         const padding = 20;
-        const xPos = this.canvas.width - padding;
+        const xPos = this.#canvas.width - padding;
         const yPos = 35;
 
         const bodyStyle = window.getComputedStyle(document.body);
         const bgColor = bodyStyle.backgroundColor;
-        this.ctx.strokeStyle = bgColor;
-        this.ctx.lineWidth = 6;
+        this.#ctx.strokeStyle = bgColor;
+        this.#ctx.lineWidth = 6;
 
         // High Score (Greyed out)
-        if (this.highScore > 0) {
-            this.ctx.filter = "none";
-            this.ctx.strokeText(`HI ${this.highScore.toString().padStart(5, '0')}`, xPos - 70, yPos);
-            this.ctx.filter = "invert(.46)";
-            this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-            this.ctx.fillText(`HI ${this.highScore.toString().padStart(5, '0')}`, xPos - 70, yPos);
+        if (this.#highScore > 0) {
+            this.#ctx.filter = "none";
+            this.#ctx.strokeText(`HI ${this.#highScore.toString().padStart(5, "0")}`, xPos - 70, yPos);
+            this.#ctx.filter = "invert(.46)";
+            this.#ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+            this.#ctx.fillText(`HI ${this.#highScore.toString().padStart(5, "0")}`, xPos - 70, yPos);
         }
 
         // Current Score
-        this.ctx.filter = "none";
-        this.ctx.strokeText(this.score.toString().padStart(5, '0'), xPos, yPos);
-        this.ctx.filter = "invert(.46)";
-        this.ctx.fillStyle = "black";
-        this.ctx.fillText(this.score.toString().padStart(5, '0'), xPos, yPos);
+        this.#ctx.filter = "none";
+        this.#ctx.strokeText(this.#score.toString().padStart(5, "0"), xPos, yPos);
+        this.#ctx.filter = "invert(.46)";
+        this.#ctx.fillStyle = "black";
+        this.#ctx.fillText(this.#score.toString().padStart(5, "0"), xPos, yPos);
 
-        this.startCube.Draw();
+        this.startCube.Draw(this.#ctx);
 
-        if (this.isGameOver) {
-            this.ctx.textAlign = "center";
+        if (this.#isGameOver) {
+            this.#ctx.textAlign = "center";
 
             const bodyStyle = window.getComputedStyle(document.body);
             const bgColor = bodyStyle.backgroundColor;
-            this.ctx.strokeStyle = bgColor;
-            this.ctx.lineWidth = 10;
-            this.ctx.fillStyle = "black";
+            this.#ctx.strokeStyle = bgColor;
+            this.#ctx.lineWidth = 10;
+            this.#ctx.fillStyle = "black";
 
-            this.ctx.font = "bold 50px 'Micro 5'";
+            this.#ctx.font = "bold 50px 'Micro 5'";
 
-            this.ctx.filter = "none";
-            this.ctx.strokeText("G A M E  O V E R", this.canvas.width / 2, this.canvas.height / 2);
-            this.ctx.filter = "invert(.46)";
-            this.ctx.fillText("G A M E  O V E R", this.canvas.width / 2, this.canvas.height / 2);
+            this.#ctx.filter = "none";
+            this.#ctx.strokeText("G A M E  O V E R", this.#canvas.width / 2, this.#canvas.height / 2);
+            this.#ctx.filter = "invert(.46)";
+            this.#ctx.fillText("G A M E  O V E R", this.#canvas.width / 2, this.#canvas.height / 2);
             
-            this.ctx.font = "20px 'Micro 5'";
-            this.ctx.lineWidth = 4;
+            this.#ctx.font = "20px 'Micro 5'";
+            this.#ctx.lineWidth = 4;
 
-            this.ctx.filter = "none";
-            this.ctx.strokeText("PRESS SPACE TO RESTART", this.canvas.width / 2, this.canvas.height / 2 + 30);
-            this.ctx.filter = "invert(.46)";
-            this.ctx.fillText("PRESS SPACE TO RESTART", this.canvas.width / 2, this.canvas.height / 2 + 30);
+            this.#ctx.filter = "none";
+            this.#ctx.strokeText("PRESS SPACE TO RESTART", this.#canvas.width / 2, this.#canvas.height / 2 + 30);
+            this.#ctx.filter = "invert(.46)";
+            this.#ctx.fillText("PRESS SPACE TO RESTART", this.#canvas.width / 2, this.#canvas.height / 2 + 30);
         }
     }
 
     GameStart() {
-        this.objects.forEach(object => {
+        this.#objects.forEach(object => {
             object.GameStart();
         });
 
-        this.startCube.MoveTo(this.canvas.width, 0, 20);
+        this.startCube.MoveTo(this.#canvas.width, 0, 20);
 
-        this.gameSpeed = this.defaultGameSpeed;
-        this.score = 0;
+        this.#gameSpeed = this.#defaultGameSpeed;
+        this.#score = 0;
 
-        this.bgMusic.play();
+        this.#bgMusic.play();
 
-        this.isGameStarted = true;
+        this.#isGameStarted = true;
     }
 
     GameOver() {
-        this.isGameOver = true;
-        this.gameOverTimer = this.defaultGameOverTimer;
+        this.#isGameOver = true;
+        this.#gameOverTimer = RunnerEngine.defaultGameOverTimer;
 
-        this.bgMusic.pause();
-        this.bgMusic.currentTime = 0;
+        this.#bgMusic.pause();
+        this.#bgMusic.currentTime = 0;
 
-        if (this.score > this.highScore) {
-            this.highScore = this.score;
-            localStorage.setItem("highScore", this.highScore);
+        if (this.#score > this.#highScore) {
+            this.#highScore = this.#score;
+            localStorage.setItem("highScore", this.#highScore);
 
-            this.highscoreSound.play();
+            this.#highScoreSound.play();
 
             let name = prompt("Please enter your name:", "-106");
-            this.leaderboard.SubmitScore(name, this.score);
+            this.#leaderboard.SubmitScore(name);
         }
     }
 
     ResetGame() {
-        if (this.gameOverTimer > 0) return;
+        if (this.#gameOverTimer > 0) return;
 
-        this.objects.forEach(object => {
+        this.#objects.forEach(object => {
             object.ResetGame();
         });
 
-        this.gameSpeed = this.defaultGameSpeed;
-        this.score = 0;
-        this.isGameOver = false;
+        this.#gameSpeed = this.#defaultGameSpeed;
+        this.#score = 0;
+        this.#isGameOver = false;
 
-        this.bgMusic.play();
+        this.#bgMusic.play();
+    }
+
+    AddObject(obj) {
+        this.#objects.push(obj);
     }
 
     DestroyObject(obj) {
-        const index = this.objects.indexOf(obj);
+        const index = this.#objects.indexOf(obj);
         if (index !== -1) {
-            this.objects[index] = null;
-            this.objects.splice(index, 1);
+            this.#objects[index] = null;
+            this.#objects.splice(index, 1);
         }
     }
 
@@ -253,12 +268,15 @@ export class RunnerEngine {
             rect1.y + rect1.height > rect2.y;
     }
 
-    AddBonusPoints(amount) {
-        this.score += amount;
-        this.gameSpeed += amount * 0.0015;
+    AddBonusPoints() {
+        const amount = 100;
+        this.#score += amount;
+        this.#gameSpeed += amount * 0.0015;
 
-        if (Math.floor(this.score / 1000) > Math.floor((this.score - amount) / 1000)) {
-            this.points1000Sound.play();
+        if (Math.floor(this.#score / 1000) > Math.floor((this.#score - amount) / 1000)) {
+            this.#points1000Sound.play();
+        } else {
+            this.#pointSound.play();
         }
     }
 
@@ -266,13 +284,13 @@ export class RunnerEngine {
         switch (type) {
             default:
             case 0:
-                this.pointSound.volume = vol;
-                this.points1000Sound.volume = vol;
-                this.highscoreSound.volume = vol;
-                this.stunSound.volume = vol;
+                this.#pointSound.volume = vol;
+                this.#points1000Sound.volume = vol;
+                this.#highScoreSound.volume = vol;
+                this.#stunSound.volume = vol;
                 break;
             case 1:
-                this.bgMusic.volume = vol;
+                this.#bgMusic.volume = vol;
                 break;
         }
 

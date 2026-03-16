@@ -1,66 +1,67 @@
 export class Ground {
+    #engine = null;
+
+    static assets = [
+        "../assets/ground0.png",
+        "../assets/ground0.png",
+        "../assets/ground0.png",
+        "../assets/ground0.png",
+        "../assets/ground1.png",
+        "../assets/ground2.png"
+    ];
+    static tileSize = 32;
+    #images = [];
+    #tiles = [];
+    #groundY = 0;
+
     constructor(engine = null) {
-        this.engine = engine;
+        this.#engine = engine;
 
-        this.assets = [
-            '../assets/ground0.png',
-            '../assets/ground0.png',
-            '../assets/ground0.png',
-            '../assets/ground0.png',
-            '../assets/ground1.png',
-            '../assets/ground2.png'
-        ]
-        this.images = [];
-
-        this.tileSize = 32;
-        this.tiles = [];
-
-        this.groundY = this.engine.canvas.height - this.tileSize + 10;
+        this.#groundY = this.#engine.canvas.height - Ground.tileSize + 10;
     }
 
     Begin() {
-        for (const asset of this.assets) {
+        for (const asset of Ground.assets) {
             const img = new Image();
             img.src = asset;
 
-            this.images.push(img);
+            this.#images.push(img);
         }
 
         // Fill the screen
-        for (let i = 0; i <= this.engine.canvas.width / this.tileSize + 1; i++) {
-            this.tiles.push({
-                x: i * this.tileSize,
-                img: this.images[Math.floor(Math.random() * this.images.length)]
+        for (let i = 0; i <= this.#engine.canvas.width / Ground.tileSize + 1; i++) {
+            this.#tiles.push({
+                x: i * Ground.tileSize,
+                img: this.#images[Math.floor(Math.random() * this.#images.length)]
             });
         }
     }
 
     Tick(deltaTime) {
-        for (const tile of this.tiles) {
-            tile.x -= this.engine.gameSpeed * deltaTime * 60;
+        for (const tile of this.#tiles) {
+            tile.x -= this.#engine.gameSpeed * deltaTime * 60;
         }
 
-        if (this.tiles[0].x <= -this.tileSize) {
-            this.tiles.shift();
+        if (this.#tiles[0].x <= -Ground.tileSize) {
+            this.#tiles.shift();
 
-            // 2. Add a new random tile at the end of the line
-            let lastTileX = this.tiles[this.tiles.length - 1].x;
-            this.tiles.push({
-                x: lastTileX + this.tileSize,
-                img: this.images[Math.floor(Math.random() * this.images.length)]
+            // Add a new random tile at the end of the line
+            let lastTileX = this.#tiles[this.#tiles.length - 1].x;
+            this.#tiles.push({
+                x: lastTileX + Ground.tileSize,
+                img: this.#images[Math.floor(Math.random() * this.#images.length)]
             });
         }
     }
 
-    Draw() {
-        this.engine.ctx.filter = "invert(.46)";
+    Draw(ctx) {
+        ctx.filter = "invert(.46)";
 
-        // Draw Ground
-        this.tiles.forEach(tile => {
-            this.engine.ctx.drawImage(tile.img, tile.x, this.groundY, this.tileSize, this.tileSize);
+        this.#tiles.forEach(tile => {
+            ctx.drawImage(tile.img, tile.x, this.#groundY, Ground.tileSize, Ground.tileSize);
         });
 
-        this.engine.ctx.filter = "none";
+        ctx.filter = "none";
     }
 
     GameStart() {
