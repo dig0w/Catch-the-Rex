@@ -25,7 +25,7 @@ export class Leaderboard {
     }
 
     async SubmitScore(name) {
-        const cleanName = name.trim().slice(0, 20) || "Anonymous";
+        const cleanName = name ? name.trim().slice(0, 20) : "Anonymous";
         const cleanScore = this.#engine.score > 99999 ? 99999 : this.#engine.score;
 
         try {
