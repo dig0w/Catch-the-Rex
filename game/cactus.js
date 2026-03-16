@@ -53,26 +53,6 @@ export class Cactus {
                 this.#cacti.splice(i, 1);
             }
         }
-
-        // Collisions
-        this.#cacti.forEach(cactus => {
-            // Dino collision - slow down
-            if (this.#engine.CheckCollision(
-                { x: this.#engine.dino.x + 5, y: this.#engine.dino.y + 5, width: this.#engine.dino.width - 10, height: this.#engine.dino.height - 10 },
-                cactus
-            ) && !this.#engine.dino.immune) {
-                this.#engine.dino.Hitted(-8, 50 / 60);
-                this.#engine.stunSound.play();
-            }
-
-            // Bird collision - game over
-            if (this.#engine.CheckCollision(
-                { x: this.#engine.bird.x + 5, y: this.#engine.bird.y + 5, width: this.#engine.bird.width - 10, height: this.#engine.bird.height - 10 },
-                cactus
-            )) {
-                this.#engine.GameOver();
-            }
-        });
     }
 
     Draw(ctx) {

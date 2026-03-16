@@ -1,5 +1,4 @@
 to do:
-gameover sound
 jump sound
 backend security
 

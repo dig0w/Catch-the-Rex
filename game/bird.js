@@ -59,25 +59,6 @@ export class Bird {
                 this.dy = 0;
             }
             if (this.#y < 0) { this.#y = 0; }
-            
-            const heightPercent = this.#y / floorY; 
-
-            // Dino Moves
-            if (heightPercent > 0.6) {
-                this.#engine.dino.dx -= .05 * deltaTime * 60;
-            } else if (heightPercent < 0.4) {
-                this.#engine.dino.dx += .045 * deltaTime * 60;
-            }
-
-            if (this.#engine.CheckCollision(
-                { x: this.#x + 5, y: this.#y + 5, width: this.#width - 10, height: this.#height - 10 },
-                { x: this.#engine.dino.x + 5, y: this.#engine.dino.y + 5, width: this.#engine.dino.width - 10, height: this.#engine.dino.height - 10 }
-            )) {
-                // Dino collision - boost
-                this.#engine.dino.Hitted(20, 100 / 60);
-                this.#engine.AddBonusPoints();
-                this.#engine.AddObject(new FloatingText(this.#engine, this.#engine.dino.x, this.#engine.dino.y, "+100"));
-            }
         }
 
         // Immunity

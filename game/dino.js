@@ -47,7 +47,6 @@ export class Dino {
         const bodyStyle = window.getComputedStyle(document.body);
         const bgColor = bodyStyle.backgroundColor;
         this.#cube = new Cube(this.#engine, (this.#width / 3) * 2, this.#height / 2, bgColor, this.#x + (this.#width / 3) * .5 - 2, this.#y + (this.#height / 2));
-        this.#engine.AddObject(this.#cube);
     }
 
     get x() { return this.#x; }
@@ -55,6 +54,8 @@ export class Dino {
     get width() { return this.#width; }
     get height() { return this.#height; }
     get immune() { return this.#immune; }
+
+    get cube() { return this.#cube; }
 
     Begin() {
 

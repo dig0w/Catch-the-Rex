@@ -75,19 +75,6 @@ export class Hayball {
                 this.#hayballs.splice(i, 1);
             }
         }
-
-        // Collisions
-        this.#hayballs.forEach(hayball => {
-            // Bird collision - boosts dino
-            if (this.#engine.CheckCollision(
-                { x: this.#engine.bird.x + 5, y: this.#engine.bird.y + 5, width: this.#engine.bird.width - 10, height: this.#engine.bird.height - 10 },
-                hayball
-            )) {
-                this.#engine.dino.dx += 2 * deltaTime * 60;
-                this.#engine.bird.Hitted(0, 100 / 60);
-                this.#engine.stunSound.play();
-            }
-        });
     }
 
     Draw(ctx) {

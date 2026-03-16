@@ -6,6 +6,7 @@ import { Cactus } from "./cactus.js";
 import { Cloud } from "./cloud.js";
 import { Hayball } from "./hayball.js";
 import { Leaderboard } from "./leaderboard.js";
+import { FloatingText } from "./floatingText.js";
 
 export class RunnerEngine {
     #isGameStarted = false;
@@ -24,12 +25,19 @@ export class RunnerEngine {
     #ctx = null;
     #objects = [];
 
+    #startCube = null;
+    #dino = null;
+    #bird = null;
+    #cactus = null;
+    #hayball = null;
+
     #leaderboard = new Leaderboard(this);
 
     #pointSound = new Audio("../assets/point.wav");
     #points1000Sound = new Audio("../assets/1000pts.wav");
     #highScoreSound = new Audio("../assets/highscore.wav");
     #stunSound = new Audio("../assets/stun.wav");
+    #gameoverSound = new Audio("../assets/gameover.wav");
     #bgMusic = new Audio("../assets/catchtherex_theme_v2.wav");
 
     constructor(gameSpeed = 5) {
@@ -38,15 +46,11 @@ export class RunnerEngine {
         this.upInput = false;
         this.downInput = false;
 
-        this.startCube = null;
-        this.dino = null;
-        this.bird = null;
-        this.cactus = null;
-
         this.#pointSound.volume = 0.5;
         this.#points1000Sound.volume = 0.5;
         this.#highScoreSound.volume = 0.5;
         this.#stunSound.volume = 0.5;
+        this.#gameoverSound.volume = 0.5;
         this.#bgMusic.volume = 0.3;
         this.#bgMusic.loop = true;
     }
@@ -62,7 +66,7 @@ export class RunnerEngine {
 
     get canvas() { return this.#canvas; }
 
-    get stunSound() { return this.#stunSound; }
+    get cactus() { return this.#cactus; }
 
     Begin() {
         this.#canvas = document.getElementById("runner-canvas");
@@ -72,21 +76,23 @@ export class RunnerEngine {
 
         this.#objects.push(new Ground(this));
 
-        this.cactus = new Cactus(this);
-        this.#objects.push(this.cactus);
+        this.#cactus = new Cactus(this);
+        this.#objects.push(this.#cactus);
 
-        this.#objects.push(new Hayball(this));
+        this.#hayball = new Hayball(this)
+        this.#objects.push(this.#hayball);
 
-        this.dino = new Dino(this);
-        this.#objects.push(this.dino);
+        this.#dino = new Dino(this);
+        this.#objects.push(this.#dino.cube);
+        this.#objects.push(this.#dino);
 
-        this.bird = new Bird(this);
-        this.#objects.push(this.bird);
+        this.#bird = new Bird(this);
+        this.#objects.push(this.#bird);
 
         const bodyStyle = window.getComputedStyle(document.body);
         const bgColor = bodyStyle.backgroundColor;
-        this.startCube = new Cube(this, this.#canvas.width, this.#canvas.height, bgColor, this.#canvas.width / 9);
-        this.startCube.Begin();
+        this.#startCube = new Cube(this, this.#canvas.width, this.#canvas.height, bgColor, this.#canvas.width / 9);
+        this.#startCube.Begin();
 
         this.#objects.forEach(object => {
             object.Begin();
@@ -107,7 +113,7 @@ export class RunnerEngine {
             } else if (!this.#isGameStarted) {
                 this.GameStart();
             } else {
-                this.bird.Jump();
+                this.#bird.Jump();
             }
         }
         if (this.downInput) {
@@ -118,7 +124,7 @@ export class RunnerEngine {
             } else if (!this.#isGameStarted) {
                 this.GameStart();
             } else {
-                this.bird.CrouchJump();
+                this.#bird.CrouchJump();
             }
         }
 
@@ -128,14 +134,66 @@ export class RunnerEngine {
         };
 
         if (this.#isGameStarted && !this.#isGameOver) {
-            if (this.#score > 99999) this.#score = 99999
+            if (this.#score > 99999) this.#score = 99999;
+
+            // Move Dino depending on Bird's height
+            const floorY = this.#canvas.height - this.#bird.height - 10;
+            const heightPercent = this.#bird.y / floorY;
+            if (heightPercent > 0.6) {
+                this.#dino.dx -= .05 * deltaTime * 60;
+            } else if (heightPercent < 0.4) {
+                this.#dino.dx += .045 * deltaTime * 60;
+            }
+
+            // Bird Dino collision = boost Dino, +100 pts
+            if (this.CheckCollision(
+                { x: this.#bird.x + 5, y: this.#bird.y + 5, width: this.#bird.width - 10, height: this.#bird.height - 10 },
+                { x: this.#dino.x + 5, y: this.#dino.y + 5, width: this.#dino.width - 10, height: this.#dino.height - 10 }
+            )) {
+                this.#dino.Hitted(20, 100 / 60);
+                this.#AddBonusPoints();
+                this.#objects.push(new FloatingText(this, this.#dino.x, this.#dino.y, "+100"));
+            }
+
+            // Cactus Collision
+            this.#cactus.cacti.forEach(cactus => {
+                // Dino collision = slow down
+                if (this.CheckCollision(
+                    { x: this.#dino.x + 5, y: this.#dino.y + 5, width: this.#dino.width - 10, height: this.#dino.height - 10 },
+                    cactus
+                ) && !this.#dino.immune) {
+                    this.#dino.Hitted(-8, 50 / 60);
+                    this.#stunSound.play();
+                }
+
+                // Bird collision = game over
+                if (this.CheckCollision(
+                    { x: this.#bird.x + 5, y: this.#bird.y + 5, width: this.#bird.width - 10, height: this.#bird.height - 10 },
+                    cactus
+                )) {
+                    this.GameOver();
+                }
+            });
+
+            // Hayball Collision
+            this.#hayball.hayballs.forEach(hayball => {
+                // Bird collision = boosts dino
+                if (this.CheckCollision(
+                    { x: this.#bird.x + 5, y: this.#bird.y + 5, width: this.#bird.width - 10, height: this.#bird.height - 10 },
+                    hayball
+                )) {
+                    this.#dino.dx += 2 * deltaTime * 60;
+                    this.#bird.Hitted(0, 100 / 60);
+                    this.#stunSound.play();
+                }
+            });
         }
 
         this.#objects.forEach(object => {
             object.Tick(deltaTime);
         });
 
-        this.startCube.Tick(deltaTime);
+        this.#startCube.Tick(deltaTime);
     }
 
     Draw() {
@@ -174,7 +232,7 @@ export class RunnerEngine {
         this.#ctx.fillStyle = "black";
         this.#ctx.fillText(this.#score.toString().padStart(5, "0"), xPos, yPos);
 
-        this.startCube.Draw(this.#ctx);
+        this.#startCube.Draw(this.#ctx);
 
         if (this.#isGameOver) {
             this.#ctx.textAlign = "center";
@@ -207,7 +265,7 @@ export class RunnerEngine {
             object.GameStart();
         });
 
-        this.startCube.MoveTo(this.#canvas.width, 0, 20);
+        this.#startCube.MoveTo(this.#canvas.width, 0, 20);
 
         this.#gameSpeed = this.#defaultGameSpeed;
         this.#score = 0;
@@ -232,6 +290,8 @@ export class RunnerEngine {
 
             let name = prompt("Please enter your name:", "-106");
             this.#leaderboard.SubmitScore(name);
+        } else {
+            this.#gameoverSound.play();
         }
     }
 
@@ -249,10 +309,6 @@ export class RunnerEngine {
         this.#bgMusic.play();
     }
 
-    AddObject(obj) {
-        this.#objects.push(obj);
-    }
-
     DestroyObject(obj) {
         const index = this.#objects.indexOf(obj);
         if (index !== -1) {
@@ -268,7 +324,7 @@ export class RunnerEngine {
             rect1.y + rect1.height > rect2.y;
     }
 
-    AddBonusPoints() {
+    #AddBonusPoints() {
         const amount = 100;
         this.#score += amount;
         this.#gameSpeed += amount * 0.0015;
@@ -288,6 +344,7 @@ export class RunnerEngine {
                 this.#points1000Sound.volume = vol;
                 this.#highScoreSound.volume = vol;
                 this.#stunSound.volume = vol;
+                this.#gameoverSound.volume = vol;
                 break;
             case 1:
                 this.#bgMusic.volume = vol;
