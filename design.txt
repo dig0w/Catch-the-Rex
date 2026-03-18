@@ -1,7 +1,3 @@
-to do:
-jump sound
-backend security
-
 bird
     player
     loses with collision to cacti
