@@ -6,6 +6,9 @@ export class Leaderboard {
     #engine = null;
 
     constructor(engine) {
+        if (!(engine instanceof RunnerEngine))
+            throw new Error("Leaderboard requires a RunnerEngine instance.");
+
         this.#engine = engine;
 
         this.#tableBody = document.querySelector(".leaderboard-container table");
