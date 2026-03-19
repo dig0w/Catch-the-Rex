@@ -63,3 +63,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 
 **🔗 Project Link:** [github.com/dig0w/Catch-the-Rex](https://github.com/dig0w/Catch-the-Rex)
+
+<!-- Other -->
+[product-preview]: ./assets/demo.gif
