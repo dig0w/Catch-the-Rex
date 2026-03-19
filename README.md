@@ -7,7 +7,9 @@
     A reverse replica of the hidden Chrome Dino game, where you hunt the T-Rex instead of escaping the desert.
   </p>
 
-  You can test it yourself [right here](https://dino.mreng.cf/).
+  <h3>You can test it yourself [right here](https://dino.mreng.cf/).</h3>
+
+  ## [![Catch the Rex Preview][product-preview]](https://github.com/dig0w/Catch-the-Rex/blob/main/assets/demo.gif)
 </div>
 
 <!-- INDEX -->
