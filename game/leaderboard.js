@@ -1,3 +1,5 @@
+import { RunnerEngine } from "./engine.js";
+
 export class Leaderboard {
     static dbURL = "https://dino.mreng.cf/api.php";
 
