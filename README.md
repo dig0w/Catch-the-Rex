@@ -29,7 +29,7 @@
 <!-- ABOUT -->
 ## About The Project
 
-...
+This project is a result of boredom and creativity, we recreated the dyno game, with a leaderboard and some core changes. In this game you play as the pterodactyl and your main goal is to chase the Rex, as the name suggests, and as a bonus, your points are stored in a global leaderboard so you can fight against other players!
 
 <p align="right">(<a href="#Catch-the-Rex">back to top</a>)</p>
 
