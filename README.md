@@ -36,14 +36,17 @@ This project is a result of boredom and creativity, we recreated the dyno game, 
 <!-- TECHNIQUES USED -->
 ## Techniques Used
 
-- ...
+- Canvas
+- JavaScript Engine
+- PHP API
 
 <p align="right">(<a href="#Catch-the-Rex">back to top</a>)</p>
 
 <!-- FUTURE WORK -->
 ## Possible Future Work
 
-- [ ] ...
+- [ ] More Obstacles
+- [ ] Better Backend Security
 
 <p align="right">(<a href="#Catch-the-Rex">back to top</a>)</p>
 
