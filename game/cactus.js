@@ -20,10 +20,9 @@ export class Cactus {
     get cacti() { return this.#cacti; }
 
     Begin() {
-        for (const asset of Cactus.assets) {
+        for (let i = 0; i < Cactus.assets.length; i++) {
             const img = new Image();
-            img.src = asset;
-
+            img.src = Cactus.assets[i];
             this.#images.push(img);
         }
     }
@@ -56,9 +55,10 @@ export class Cactus {
     }
 
     Draw(ctx) {
-        this.#cacti.forEach(cactus => {
-            ctx.drawImage(cactus.img, cactus.x, cactus.y, cactus.width, cactus.height);
-        });
+        for (let i = 0; i < this.#cacti.length; i++) {
+            const cactus = this.#cacti[i];
+            ctx.drawImage(cactus.img, (cactus.x | 0), (cactus.y | 0), (cactus.width | 0), (cactus.height | 0));
+        }
     }
 
     GameStart() {

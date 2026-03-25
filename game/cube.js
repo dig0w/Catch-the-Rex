@@ -58,7 +58,7 @@ export class Cube {
 
     Draw(ctx) {
         ctx.fillStyle = this.#color;
-        ctx.fillRect(this.#x, this.#y, this.#width, this.#height);
+        ctx.fillRect((this.#x | 0), (this.#y | 0), (this.#width | 0), (this.#height | 0));
     }
 
     GameStart() {

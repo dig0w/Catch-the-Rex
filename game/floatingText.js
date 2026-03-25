@@ -38,9 +38,9 @@ export class FloatingText {
         ctx.strokeStyle = bgColor;
         ctx.lineWidth = 4;
 
-        ctx.strokeText(this.text, this.x, this.y);
+        ctx.strokeText(this.text, (this.x | 0), (this.y | 0));
         ctx.fillStyle = "#757575";
-        ctx.fillText(this.text, this.x, this.y);
+        ctx.fillText(this.text, (this.x | 0), (this.y | 0));
 
         ctx.restore();
     }

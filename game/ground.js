@@ -11,8 +11,10 @@ export class Ground {
     ];
     static tileSize = 32;
     #images = [];
-    #tiles = [];
     #groundY = 0;
+
+    #groundCanvas = null;
+    #xOffset = 0;
 
     constructor(engine = null) {
         this.#engine = engine;
@@ -20,44 +22,46 @@ export class Ground {
         this.#groundY = this.#engine.canvas.height - Ground.tileSize + 10;
     }
 
-    Begin() {
-        for (const asset of Ground.assets) {
-            const img = new Image();
-            img.src = asset;
-
-            this.#images.push(img);
-        }
-
-        // Fill the screen
-        for (let i = 0; i <= this.#engine.canvas.width / Ground.tileSize + 1; i++) {
-            this.#tiles.push({
-                x: i * Ground.tileSize,
-                img: this.#images[Math.floor(Math.random() * this.#images.length)]
+    async Begin() {
+        const loadPromises = Ground.assets.map(asset => {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.src = asset;
             });
+        });
+
+        this.#images = await Promise.all(loadPromises);
+
+        this.#groundCanvas = document.createElement("canvas");
+        this.#groundCanvas.width = this.#engine.canvas.width + Ground.tileSize;
+        this.#groundCanvas.height = Ground.tileSize;
+        const gCtx = this.#groundCanvas.getContext("2d");
+
+        for (let i = 0; i < (this.#groundCanvas.width / Ground.tileSize); i++) {
+            const img = this.#images[Math.floor(Math.random() * this.#images.length)];
+            gCtx.drawImage(img, i * Ground.tileSize, 0);
         }
     }
 
     Tick(deltaTime) {
-        for (const tile of this.#tiles) {
-            tile.x -= this.#engine.gameSpeed * deltaTime * 60;
-        }
+        if (!this.#groundCanvas) return;
 
-        if (this.#tiles[0].x <= -Ground.tileSize) {
-            this.#tiles.shift();
+        this.#xOffset += this.#engine.gameSpeed * deltaTime * 60;
 
-            // Add a new random tile at the end of the line
-            let lastTileX = this.#tiles[this.#tiles.length - 1].x;
-            this.#tiles.push({
-                x: lastTileX + Ground.tileSize,
-                img: this.#images[Math.floor(Math.random() * this.#images.length)]
-            });
+        if (this.#xOffset >= this.#groundCanvas.width) {
+            this.#xOffset = 0;
         }
     }
 
     Draw(ctx) {
-        this.#tiles.forEach(tile => {
-            ctx.drawImage(tile.img, tile.x, this.#groundY, Ground.tileSize, Ground.tileSize);
-        });
+        if (!this.#groundCanvas) return;
+
+        const x = (-this.#xOffset) | 0;
+        const y = this.#groundY | 0;
+
+        ctx.drawImage(this.#groundCanvas, x, y);
+        ctx.drawImage(this.#groundCanvas, x + this.#groundCanvas.width, y);
     }
 
     GameStart() {

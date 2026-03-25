@@ -66,13 +66,12 @@ export class Leaderboard {
     Render(scores) {
         this.#tableBody.innerHTML = "";
 
-        scores.forEach(entry => {
-            const row = `
+        for (let i = 0; i < scores.length; i++) {
+            this.#tableBody.innerHTML += `
                 <tr>
-                    <td>${entry.name}</td>
-                    <td>${entry.score}</td>
+                    <td>${scores[i].name}</td>
+                    <td>${scores[i].score}</td>
                 </tr>`;
-            this.#tableBody.innerHTML += row;
-        });
+        }
     }
 }

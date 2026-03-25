@@ -94,9 +94,9 @@ export class RunnerEngine {
         this.#startCube = new Cube(this, this.#canvas.width, this.#canvas.height, bgColor, this.#canvas.width / 9);
         this.#startCube.Begin();
 
-        this.#objects.forEach(object => {
-            object.Begin();
-        });
+        for (let i = 0; i < this.#objects.length; i++) {
+            this.#objects[i].Begin();
+        }
 
         this.UpdateVolume(localStorage.getItem("audio") || 0.5, 0);
         this.UpdateVolume(localStorage.getItem("music") || 0.5, 1);
@@ -156,7 +156,8 @@ export class RunnerEngine {
             }
 
             // Cactus Collision
-            this.#cactus.cacti.forEach(cactus => {
+            for (let i = 0; i < this.#cactus.cacti.length; i++) {
+                const cactus = this.#cactus.cacti[i];
                 // Dino collision = slow down
                 if (this.CheckCollision(
                     { x: this.#dino.x + 5, y: this.#dino.y + 5, width: this.#dino.width - 10, height: this.#dino.height - 10 },
@@ -173,10 +174,11 @@ export class RunnerEngine {
                 )) {
                     this.GameOver();
                 }
-            });
+            }
 
             // Hayball Collision
-            this.#hayball.hayballs.forEach(hayball => {
+            for (let i = 0; i < this.#hayball.hayballs.length; i++) {
+                const hayball = this.#hayball.hayballs[i];
                 // Bird collision = boosts dino
                 if (this.CheckCollision(
                     { x: this.#bird.x + 5, y: this.#bird.y + 5, width: this.#bird.width - 10, height: this.#bird.height - 10 },
@@ -186,12 +188,12 @@ export class RunnerEngine {
                     this.#bird.Hitted(0, 100 / 60);
                     this.#stunSound.play();
                 }
-            });
+            }
         }
 
-        this.#objects.forEach(object => {
-            object.Tick(deltaTime);
-        });
+        for (let i = this.#objects.length - 1; i >= 0; i--) {
+            this.#objects[i].Tick(deltaTime);
+        }
 
         this.#startCube.Tick(deltaTime);
     }
@@ -200,9 +202,9 @@ export class RunnerEngine {
         // Clear the canvas
         this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
 
-        this.#objects.forEach(object => {
-            object.Draw(this.#ctx);
-        });
+        for (let i = 0; i < this.#objects.length; i++) {
+            this.#objects[i].Draw(this.#ctx);
+        }
 
         this.#ctx.font = "25px 'Micro 5'";
         this.#ctx.textAlign = "right";
@@ -218,15 +220,15 @@ export class RunnerEngine {
 
         // High Score (Greyed out)
         if (this.#highScore > 0) {
-            this.#ctx.strokeText(`HI ${this.#highScore.toString().padStart(5, "0")}`, xPos - 70, yPos);
+            this.#ctx.strokeText(`HI ${this.#highScore.toString().padStart(5, "0")}`, ((xPos - 70) | 0), (yPos | 0));
             this.#ctx.fillStyle = "#B6B6B6";
-            this.#ctx.fillText(`HI ${this.#highScore.toString().padStart(5, "0")}`, xPos - 70, yPos);
+            this.#ctx.fillText(`HI ${this.#highScore.toString().padStart(5, "0")}`, ((xPos - 70) | 0), (yPos | 0));
         }
 
         // Current Score
-        this.#ctx.strokeText(this.#score.toString().padStart(5, "0"), xPos, yPos);
+        this.#ctx.strokeText(this.#score.toString().padStart(5, "0"), (xPos | 0), (yPos | 0));
         this.#ctx.fillStyle = "#757575";
-        this.#ctx.fillText(this.#score.toString().padStart(5, "0"), xPos, yPos);
+        this.#ctx.fillText(this.#score.toString().padStart(5, "0"), (xPos | 0), (yPos | 0));
 
         this.#startCube.Draw(this.#ctx);
 
@@ -239,22 +241,22 @@ export class RunnerEngine {
             this.#ctx.font = "bold 50px 'Micro 5'";
 
             this.#ctx.strokeStyle = bgColor;
-            this.#ctx.strokeText("G A M E  O V E R", this.#canvas.width / 2, this.#canvas.height / 2);
+            this.#ctx.strokeText("G A M E  O V E R", ((this.#canvas.width) / 2 | 0), ((this.#canvas.height / 2) | 0));
             this.#ctx.fillStyle = "#757575";
-            this.#ctx.fillText("G A M E  O V E R", this.#canvas.width / 2, this.#canvas.height / 2);
-            
+            this.#ctx.fillText("G A M E  O V E R", ((this.#canvas.width / 2) | 0), ((this.#canvas.height / 2) | 0));
+
             this.#ctx.font = "20px 'Micro 5'";
             this.#ctx.lineWidth = 4;
 
-            this.#ctx.strokeText("PRESS SPACE TO RESTART", this.#canvas.width / 2, this.#canvas.height / 2 + 30);
-            this.#ctx.fillText("PRESS SPACE TO RESTART", this.#canvas.width / 2, this.#canvas.height / 2 + 30);
+            this.#ctx.strokeText("PRESS SPACE TO RESTART", ((this.#canvas.width / 2) | 0), ((this.#canvas.height / 2 + 30) | 0));
+            this.#ctx.fillText("PRESS SPACE TO RESTART", ((this.#canvas.width / 2) | 0), ((this.#canvas.height / 2 + 30) | 0));
         }
     }
 
     GameStart() {
-        this.#objects.forEach(object => {
-            object.GameStart();
-        });
+        for (let i = 0; i < this.#objects.length; i++) {
+            this.#objects[i].GameStart();
+        }
 
         this.#startCube.MoveTo(this.#canvas.width, 0, 20);
 
@@ -289,9 +291,9 @@ export class RunnerEngine {
     ResetGame() {
         if (this.#gameOverTimer > 0) return;
 
-        this.#objects.forEach(object => {
-            object.ResetGame();
-        });
+        for (let i = 0; i < this.#objects.length; i++) {
+            this.#objects[i].ResetGame();
+        }
 
         this.#gameSpeed = this.#defaultGameSpeed;
         this.#score = 0;

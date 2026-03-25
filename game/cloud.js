@@ -19,10 +19,9 @@ export class Cloud {
     }
 
     Begin() {
-        for (const asset of Cloud.assets) {
+        for (let i = 0; i < Cloud.assets.length; i++) {
             const img = new Image();
-            img.src = asset;
-
+            img.src = Cloud.assets[i];
             this.#images.push(img);
         }
     }
@@ -67,9 +66,10 @@ export class Cloud {
     }
 
     Draw(ctx) {
-        this.#clouds.forEach(cloud => {
-            ctx.drawImage(cloud.img, cloud.x, cloud.y, cloud.width, cloud.height);
-        });
+        for (let i = 0; i < this.#clouds.length; i++) {
+            const cloud = this.#clouds[i];
+            ctx.drawImage(cloud.img, (cloud.x | 0), (cloud.y | 0), (cloud.width | 0), (cloud.height | 0));
+        }
     }
 
     GameStart() {

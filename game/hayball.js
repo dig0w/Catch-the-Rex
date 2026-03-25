@@ -19,10 +19,9 @@ export class Hayball {
     get hayballs() { return this.#hayballs; }
 
     Begin() {
-        for (const asset of Hayball.assets) {
+        for (let i = 0; i < Hayball.assets.length; i++) {
             const img = new Image();
-            img.src = asset;
-
+            img.src = Hayball.assets[i];
             this.#images.push(img);
         }
     }
@@ -78,13 +77,15 @@ export class Hayball {
     }
 
     Draw(ctx) {
-        this.#hayballs.forEach(hayball => {
+        for (let i = 0; i < this.#hayballs.length; i++) {
+            const hayball = this.#hayballs[i];
+
             ctx.save();
-            ctx.translate(hayball.x + hayball.width / 2, hayball.y + hayball.height / 2);
+            ctx.translate(((hayball.x + hayball.width / 2) | 0), ((hayball.y + hayball.height / 2) | 0));
             ctx.rotate(-hayball.angle);
-            ctx.drawImage(hayball.img, -hayball.width / 2, -hayball.height / 2, hayball.width, hayball.height);
+            ctx.drawImage(hayball.img, ((-hayball.width / 2) | 0), ((-hayball.height / 2) | 0),(hayball.width | 0), (hayball.height | 0));
             ctx.restore();
-        });
+        }
     }
 
     GameStart() {
