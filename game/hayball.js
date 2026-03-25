@@ -78,8 +78,6 @@ export class Hayball {
     }
 
     Draw(ctx) {
-        ctx.filter = "invert(.46)";
-
         this.#hayballs.forEach(hayball => {
             ctx.save();
             ctx.translate(hayball.x + hayball.width / 2, hayball.y + hayball.height / 2);
@@ -87,8 +85,6 @@ export class Hayball {
             ctx.drawImage(hayball.img, -hayball.width / 2, -hayball.height / 2, hayball.width, hayball.height);
             ctx.restore();
         });
-
-        ctx.filter = "none";
     }
 
     GameStart() {

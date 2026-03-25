@@ -140,9 +140,9 @@ export class RunnerEngine {
             const floorY = this.#canvas.height - this.#bird.height - 10;
             const heightPercent = this.#bird.y / floorY;
             if (heightPercent > 0.6) {
-                this.#dino.dx -= .05 * deltaTime * 60;
+                this.#dino.dx -= .15 * deltaTime * 60;
             } else if (heightPercent < 0.4) {
-                this.#dino.dx += .045 * deltaTime * 60;
+                this.#dino.dx += .12 * deltaTime * 60;
             }
 
             // Bird Dino collision = boost Dino, +100 pts
@@ -218,18 +218,14 @@ export class RunnerEngine {
 
         // High Score (Greyed out)
         if (this.#highScore > 0) {
-            this.#ctx.filter = "none";
             this.#ctx.strokeText(`HI ${this.#highScore.toString().padStart(5, "0")}`, xPos - 70, yPos);
-            this.#ctx.filter = "invert(.46)";
-            this.#ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+            this.#ctx.fillStyle = "#B6B6B6";
             this.#ctx.fillText(`HI ${this.#highScore.toString().padStart(5, "0")}`, xPos - 70, yPos);
         }
 
         // Current Score
-        this.#ctx.filter = "none";
         this.#ctx.strokeText(this.#score.toString().padStart(5, "0"), xPos, yPos);
-        this.#ctx.filter = "invert(.46)";
-        this.#ctx.fillStyle = "black";
+        this.#ctx.fillStyle = "#757575";
         this.#ctx.fillText(this.#score.toString().padStart(5, "0"), xPos, yPos);
 
         this.#startCube.Draw(this.#ctx);
@@ -239,23 +235,18 @@ export class RunnerEngine {
 
             const bodyStyle = window.getComputedStyle(document.body);
             const bgColor = bodyStyle.backgroundColor;
-            this.#ctx.strokeStyle = bgColor;
             this.#ctx.lineWidth = 10;
-            this.#ctx.fillStyle = "black";
-
             this.#ctx.font = "bold 50px 'Micro 5'";
 
-            this.#ctx.filter = "none";
+            this.#ctx.strokeStyle = bgColor;
             this.#ctx.strokeText("G A M E  O V E R", this.#canvas.width / 2, this.#canvas.height / 2);
-            this.#ctx.filter = "invert(.46)";
+            this.#ctx.fillStyle = "#757575";
             this.#ctx.fillText("G A M E  O V E R", this.#canvas.width / 2, this.#canvas.height / 2);
             
             this.#ctx.font = "20px 'Micro 5'";
             this.#ctx.lineWidth = 4;
 
-            this.#ctx.filter = "none";
             this.#ctx.strokeText("PRESS SPACE TO RESTART", this.#canvas.width / 2, this.#canvas.height / 2 + 30);
-            this.#ctx.filter = "invert(.46)";
             this.#ctx.fillText("PRESS SPACE TO RESTART", this.#canvas.width / 2, this.#canvas.height / 2 + 30);
         }
     }

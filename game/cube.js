@@ -30,29 +30,33 @@ export class Cube {
 
     Tick(deltaTime) {
         if (this.#gotTarget) {
-            const dx = this.#xTarget - this.#x;
-            const dy = this.#yTarget - this.#y;
-
-            if (Math.abs(dx) < this.#speedTarget) {
+            if (this.#speedTarget == 0) {
                 this.#x = this.#xTarget;
-            } else {
-                this.#x += Math.sign(dx) * this.#speedTarget * deltaTime * 60;
-            }
-
-            if (Math.abs(dy) < this.#speedTarget) {
                 this.#y = this.#yTarget;
             } else {
-                this.#y += Math.sign(dy) * this.#speedTarget * deltaTime * 60;
-            }
+                const dx = this.#xTarget - this.#x;
+                const dy = this.#yTarget - this.#y;
 
-            if (this.#x === this.#xTarget && this.#y === this.#yTarget) {
-                this.#gotTarget = false;
+                if (Math.abs(dx) < this.#speedTarget) {
+                    this.#x = this.#xTarget;
+                } else {
+                    this.#x += Math.sign(dx) * this.#speedTarget * deltaTime * 60;
+                }
+
+                if (Math.abs(dy) < this.#speedTarget) {
+                    this.#y = this.#yTarget;
+                } else {
+                    this.#y += Math.sign(dy) * this.#speedTarget * deltaTime * 60;
+                }
+
+                if (this.#x === this.#xTarget && this.#y === this.#yTarget) {
+                    this.#gotTarget = false;
+                }
             }
         }
     }
 
     Draw(ctx) {
-        ctx.filter = "none";
         ctx.fillStyle = this.#color;
         ctx.fillRect(this.#x, this.#y, this.#width, this.#height);
     }

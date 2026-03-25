@@ -62,8 +62,6 @@ export class Dino {
     }
 
     Tick(deltaTime) {
-        this.#cube.MoveTo(this.#x + (this.#width / 3) * .5 - 2, this.#y + (this.#height / 2), 100);
-
         // Velocities
         this.#x += this.dx * deltaTime * 60;
         this.dx *= Math.pow(Dino.friction, deltaTime * 60);
@@ -79,6 +77,8 @@ export class Dino {
             this.dy = 0;
             this.#grounded = true;
         }
+
+        this.#cube.MoveTo(this.#x + (this.#width / 3) * .5 - 2, this.#y + (this.#height / 2), 0);
 
         // Immunity
         if (this.#immune) {
@@ -129,8 +129,6 @@ export class Dino {
     }
 
     Draw(ctx) {
-        ctx.filter = "invert(.46)";
-
         // Immunity
         if (this.#immune && !this.#engine.isGameOver) {
             ctx.globalAlpha = Math.sin(Date.now() / 50) > 0 ? 0.5 : 1.0;
@@ -143,7 +141,6 @@ export class Dino {
             this.#isHit ? this.#dinoDeadImg : this.dy != 0 || this.#engine.gameSpeed == 0 ? this.#dinoImg : (this.#animState ? this.#dinoRunLImg : this.#dinoRunRImg),
                     this.#x, this.#y, this.#width, this.#height);
 
-        ctx.filter = "none";
         ctx.globalAlpha = 1.0;
     }
 
@@ -203,14 +200,11 @@ export class Dino {
         const nearestCactus = this.#engine.cactus.cacti.find(c => c.x > this.#x);
 
         if (nearestCactus) {
-            const jumpThreshold = 100 + (this.#engine.gameSpeed * 5); 
-
+            const jumpThreshold = (this.#engine.gameSpeed + this.dx) * (this.#jumpForce / this.#engine.gravity);
             const distance = nearestCactus.x - this.#x;
 
-            if (distance < jumpThreshold) {
-                if (Math.random() > 0) {
-                    this.Jump();
-                }
+            if (distance < jumpThreshold && Math.random() > .4) {
+                this.Jump();
             }
         }
     }

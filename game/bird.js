@@ -100,8 +100,6 @@ export class Bird {
     }
 
     Draw(ctx) {
-        ctx.filter = "invert(.46)";
-
         // Immunity
         if (this.#immune && !this.#engine.isGameOver) {
             ctx.globalAlpha = Math.sin(Date.now() / 50) > 0 ? 0.5 : 1.0;
@@ -113,7 +111,6 @@ export class Bird {
         ctx.drawImage(this.#animState ? this.#birdImgOpen : this.#birdImgClosed,
             this.#x, this.#y, this.#width, this.#height);
 
-        ctx.filter = "none";
         ctx.globalAlpha = 1.0;
     }
 

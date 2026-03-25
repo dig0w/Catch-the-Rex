@@ -55,13 +55,9 @@ export class Ground {
     }
 
     Draw(ctx) {
-        ctx.filter = "invert(.46)";
-
         this.#tiles.forEach(tile => {
             ctx.drawImage(tile.img, tile.x, this.#groundY, Ground.tileSize, Ground.tileSize);
         });
-
-        ctx.filter = "none";
     }
 
     GameStart() {

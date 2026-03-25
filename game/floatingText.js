@@ -38,10 +38,8 @@ export class FloatingText {
         ctx.strokeStyle = bgColor;
         ctx.lineWidth = 4;
 
-        ctx.filter = "none";
         ctx.strokeText(this.text, this.x, this.y);
-        ctx.filter = "invert(.46)";
-        ctx.fillStyle = "black";
+        ctx.fillStyle = "#757575";
         ctx.fillText(this.text, this.x, this.y);
 
         ctx.restore();

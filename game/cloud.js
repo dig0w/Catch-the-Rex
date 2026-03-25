@@ -67,15 +67,9 @@ export class Cloud {
     }
 
     Draw(ctx) {
-        ctx.filter = "invert(.46)";
-        ctx.globalAlpha = 0.5;
-
         this.#clouds.forEach(cloud => {
             ctx.drawImage(cloud.img, cloud.x, cloud.y, cloud.width, cloud.height);
         });
-
-        ctx.filter = "none";
-        ctx.globalAlpha = 1;
     }
 
     GameStart() {

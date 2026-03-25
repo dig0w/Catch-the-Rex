@@ -56,13 +56,9 @@ export class Cactus {
     }
 
     Draw(ctx) {
-        ctx.filter = "invert(.46)";
-
         this.#cacti.forEach(cactus => {
             ctx.drawImage(cactus.img, cactus.x, cactus.y, cactus.width, cactus.height);
         });
-
-        ctx.filter = "none";
     }
 
     GameStart() {
