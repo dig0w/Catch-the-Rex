@@ -1,5 +1,3 @@
-import { FloatingText } from "./floatingText.js";
-
 export class Bird {
     #engine = null;
 
