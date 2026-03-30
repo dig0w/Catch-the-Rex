@@ -1,16 +1,9 @@
 export class Ground {
     #engine = null;
 
-    static assets = [
-        "../assets/ground0.png",
-        "../assets/ground0.png",
-        "../assets/ground0.png",
-        "../assets/ground0.png",
-        "../assets/ground1.png",
-        "../assets/ground2.png"
-    ];
+    static sheet = Object.assign(new Image(), { src: "assets/grounds.webp" });
     static tileSize = 32;
-    #images = [];
+    static weights = [0, 0, 0, 0, 1, 2];
     #groundY = 0;
 
     #groundCanvas = null;
@@ -22,25 +15,19 @@ export class Ground {
         this.#groundY = this.#engine.canvas.height - Ground.tileSize + 10;
     }
 
-    async Begin() {
-        const loadPromises = Ground.assets.map(asset => {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => resolve(img);
-                img.src = asset;
-            });
-        });
+    Begin() {
+        Ground.sheet.onload = () => {
+            this.#groundCanvas = document.createElement("canvas");
+            this.#groundCanvas.width = this.#engine.canvas.width + Ground.tileSize;
+            this.#groundCanvas.height = Ground.tileSize;
+            const gCtx = this.#groundCanvas.getContext("2d");
 
-        this.#images = await Promise.all(loadPromises);
+            for (let i = 0; i < (this.#groundCanvas.width / Ground.tileSize); i++) {
+                const frame = Ground.weights[Math.floor(Math.random() * Ground.weights.length)];
+                let frameCoords = { x: (frame % 2) * Ground.tileSize, y: Math.floor(frame / 2) * Ground.tileSize };
 
-        this.#groundCanvas = document.createElement("canvas");
-        this.#groundCanvas.width = this.#engine.canvas.width + Ground.tileSize;
-        this.#groundCanvas.height = Ground.tileSize;
-        const gCtx = this.#groundCanvas.getContext("2d");
-
-        for (let i = 0; i < (this.#groundCanvas.width / Ground.tileSize); i++) {
-            const img = this.#images[Math.floor(Math.random() * this.#images.length)];
-            gCtx.drawImage(img, i * Ground.tileSize, 0);
+                gCtx.drawImage(Ground.sheet, (frameCoords.x | 0), (frameCoords.y | 0), Ground.tileSize, Ground.tileSize, i * Ground.tileSize, 0, Ground.tileSize, Ground.tileSize);
+            }
         }
     }
 

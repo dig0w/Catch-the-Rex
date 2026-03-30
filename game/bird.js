@@ -1,13 +1,15 @@
 export class Bird {
     #engine = null;
 
-    #width = 64 / 1.25;
-    #height = 57 / 1.25;
+    static birdSheet = Object.assign(new Image(), { src: "assets/pterodactyl_sheet.webp" });
+    static frameW = 64;
+    static frameH = 57;
+
+    #width = Bird.frameW / 1.25;
+    #height = Bird.frameH / 1.25;
     #x = 0;
     #y = 10;
 
-    #birdImgOpen = new Image();
-    #birdImgClosed = new Image();
     static defaultAnimTimer = 10 / 60;
     #animState = false;
     #animTimer = Bird.defaultAnimTimer;
@@ -28,9 +30,6 @@ export class Bird {
         this.#engine = engine;
 
         this.#x = -((this.#engine.canvas.width / 2) - (this.#width / 2));
-
-        this.#birdImgOpen.src = "assets/pterodactyl_open.png";
-        this.#birdImgClosed.src = "assets/pterodactyl_closed.png";
 
         this.dx = 0;
         this.dy = 0;
@@ -111,8 +110,11 @@ export class Bird {
         }
 
         // Draw Bird
-        ctx.drawImage(this.#animState ? this.#birdImgOpen : this.#birdImgClosed,
-            (this.#x | 0), (this.#y | 0), (this.#width | 0), (this.#height | 0));
+        let frameCoords = { x: 0, y: 0 };
+        if (this.#animState) {
+            frameCoords = { x: Bird.frameW, y: 0 };
+        }
+        ctx.drawImage(Bird.birdSheet, (frameCoords.x | 0), (frameCoords.y | 0), (Bird.frameW | 0), (Bird.frameH | 0), (this.#x | 0), (this.#y | 0), (this.#width | 0), (this.#height | 0));
 
         ctx.globalAlpha = 1.0;
     }

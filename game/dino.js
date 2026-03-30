@@ -4,15 +4,15 @@ export class Dino {
     #engine = null;
     #cube = null;
 
-    #width = 54 / 1.25;
-    #height = 60 / 1.25;
+    static dinoSheet = Object.assign(new Image(), { src: "assets/rex_sheet.webp" });
+    static frameW = 54;
+    static frameH = 60;
+
+    #width = Dino.frameW / 1.25;
+    #height = Dino.frameH / 1.25;
     #x = 10;
     #y = 0;
 
-    #dinoImg = new Image();
-    #dinoDeadImg = new Image();
-    #dinoRunLImg = new Image();
-    #dinoRunRImg = new Image();
     static defaultAnimTimer = 5 / 60;
     #animState = false;
     #animTimer = Dino.defaultAnimTimer;
@@ -35,11 +35,6 @@ export class Dino {
         this.#engine = engine;
 
         this.#y = this.#engine.canvas.height - this.#height;
-
-        this.#dinoImg.src = "../assets/rex.png";
-        this.#dinoDeadImg.src = "../assets/rex_dead.png";
-        this.#dinoRunLImg.src = "../assets/rex_left_up.png";
-        this.#dinoRunRImg.src = "../assets/rex_right_up.png";
 
         this.dx = 0;
         this.dy = 0;
@@ -142,9 +137,17 @@ export class Dino {
         }
 
         // Draw Dino
-        ctx.drawImage(
-            this.#isHit ? this.#dinoDeadImg : this.dy != 0 || this.#engine.gameSpeed == 0 ? this.#dinoImg : (this.#animState ? this.#dinoRunLImg : this.#dinoRunRImg),
-                    (this.#x | 0), (this.#y | 0), (this.#width | 0), (this.#height | 0));
+        let frameCoords = { x: 0, y: 0 };
+        if (this.#isHit) {
+            frameCoords = { x: Dino.frameW, y: 0 };
+        } else if (this.#engine.gameSpeed != 0 && this.dy == 0) {
+            if (this.#animState) {
+                frameCoords = { x: Dino.frameW, y: Dino.frameH };
+            } else {
+                frameCoords = { x: 0, y: Dino.frameH };
+            }
+        }
+        ctx.drawImage(Dino.dinoSheet, (frameCoords.x | 0), (frameCoords.y | 0), (Dino.frameW | 0), (Dino.frameH | 0), (this.#x | 0), (this.#y | 0), (this.#width | 0), (this.#height | 0));
 
         ctx.globalAlpha = 1.0;
     }

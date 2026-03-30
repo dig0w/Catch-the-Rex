@@ -1,14 +1,13 @@
 export class Cactus {
     #engine = null;
 
-    static assets = [
-        "../assets/cactus0.png",
-        "../assets/cactus1.png",
-        "../assets/cactus2.png"
+    static images = [
+        Object.assign(new Image(), { src: "assets/cactus0.webp" }),
+        Object.assign(new Image(), { src: "assets/cactus1.webp" }),
+        Object.assign(new Image(), { src: "assets/cactus2.webp" })
     ];
-    #images = [];
-    #cacti = [];
 
+    #cacti = [];
     static minSpawnTime = 50 / 60;
     static maxSpawnTime = 100 / 60;
     #spawnTimer = 0;
@@ -20,11 +19,7 @@ export class Cactus {
     get cacti() { return this.#cacti; }
 
     Begin() {
-        for (let i = 0; i < Cactus.assets.length; i++) {
-            const img = new Image();
-            img.src = Cactus.assets[i];
-            this.#images.push(img);
-        }
+
     }
 
     Tick(deltaTime) {
@@ -32,7 +27,7 @@ export class Cactus {
 
         if (this.#spawnTimer > (Math.random() * (Cactus.maxSpawnTime - Cactus.minSpawnTime) + Cactus.minSpawnTime) 
                             * (this.#engine.defaultGameSpeed / this.#engine.gameSpeed)) {
-            let randomImg = this.#images[Math.floor(Math.random() * this.#images.length)];
+            let randomImg = Cactus.images[Math.floor(Math.random() * Cactus.images.length)];
             
             this.#cacti.push({
                 x: this.#engine.canvas.width,

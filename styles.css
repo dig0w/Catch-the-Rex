@@ -144,12 +144,6 @@ footer a {
 
     cursor: pointer;
 }
-.settings-trigger > * {
-    width: 2rem;
-    height: 2rem;
-
-    filter: invert(36%);
-}
 .settings-popup {
     padding: 1rem;
 
@@ -237,19 +231,25 @@ footer a {
 .settings-trigger:active, .mute-btn:active {
     transform: translate(2px, 2px);
 }
-.mute-btn > * {
-    width: 1.5rem;
-    height: 1.5rem;
-
-    filter: invert(46%);
-}
-.mute-btn > *:first-child {
-    width: 2rem;
-    height: 2rem;
-}
 
 @media (orientation: portrait) {
     .settings-container {
         display: none;
     }
 }
+
+.icon {
+    display: inline-block;
+
+    min-width: 32px;
+    min-height: 32px;
+
+    background-image: url("./assets/icons.webp");
+    background-repeat: no-repeat;
+    vertical-align: middle;
+}
+.icon-settings { background-position: 0 0; }
+.icon-audio { background-position: 0 -32px; }
+.icon-audio-muted { background-position: -32px -32px; }
+.icon-music { background-position: 0 -64px; }
+.icon-music-muted { background-position: -32px -64px; }

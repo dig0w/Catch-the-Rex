@@ -1,15 +1,10 @@
 export class Cloud {
     #engine = null;
 
-    static assets = [
-        "../assets/cloud0.png",
-        "../assets/cloud1.png",
-        "../assets/cloud2.png",
-        "../assets/cloud3.png"
-    ];
-    #images = [];
-    #clouds = [];
+    static sheet = Object.assign(new Image(), { src: "assets/clouds.webp" });
+    static frameSize = 32;
 
+    #clouds = [];
     static minSpawnTime = 150 / 60;
     static maxSpawnTime = 600 / 60;
     #spawnTimer = 0;
@@ -19,28 +14,22 @@ export class Cloud {
     }
 
     Begin() {
-        for (let i = 0; i < Cloud.assets.length; i++) {
-            const img = new Image();
-            img.src = Cloud.assets[i];
-            this.#images.push(img);
-        }
+
     }
 
     Tick(deltaTime) {
         this.#spawnTimer += deltaTime;
 
         if (this.#spawnTimer > (Math.random() * (Cloud.maxSpawnTime - Cloud.minSpawnTime) + Cloud.minSpawnTime) 
-                                                      * (this.#engine.defaultGameSpeed / this.#engine.gameSpeed)) {
-            let randomImg = this.#images[Math.floor(Math.random() * this.#images.length)];
-
+                                * (this.#engine.defaultGameSpeed / this.#engine.gameSpeed)) {
             const maxY = 100;
             const minY = 20;
 
             const randomY = Math.random() * (maxY - minY) + minY;
 
             const scale = Math.random() * 0.6 + 0.8;
-            const w = randomImg.width * scale;
-            const h = randomImg.height * scale;
+            const w = Cloud.frameSize * scale;
+            const h = Cloud.frameSize * scale;
 
             const speedMult = (randomY / maxY) * 0.3 + 0.2;
 
@@ -49,7 +38,7 @@ export class Cloud {
                 y: randomY,
                 width: w,
                 height: h,
-                img: randomImg,
+                frame: Math.floor(Math.random() * 4),
                 speedFactor: speedMult
             });
 
@@ -68,7 +57,9 @@ export class Cloud {
     Draw(ctx) {
         for (let i = 0; i < this.#clouds.length; i++) {
             const cloud = this.#clouds[i];
-            ctx.drawImage(cloud.img, (cloud.x | 0), (cloud.y | 0), (cloud.width | 0), (cloud.height | 0));
+            let frameCoords = { x: (cloud.frame % 2) * Cloud.frameSize, y: Math.floor(cloud.frame / 2) * Cloud.frameSize };
+
+            ctx.drawImage(Cloud.sheet, (frameCoords.x | 0), (frameCoords.y | 0), (Cloud.frameSize | 0), (Cloud.frameSize | 0), (cloud.x | 0), (cloud.y | 0), (cloud.width | 0), (cloud.height | 0));
         }
     }
 

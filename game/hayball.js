@@ -1,13 +1,12 @@
 export class Hayball {
     #engine = null;
 
-    static assets = [
-        "../assets/hayball0.png",
-        "../assets/hayball1.png"
+    static images = [
+        Object.assign(new Image(), { src: "assets/hayball0.webp" }),
+        Object.assign(new Image(), { src: "assets/hayball1.webp" })
     ];
-    #images = [];
-    #hayballs = [];
 
+    #hayballs = [];
     static minSpawnTime = 400 / 60;
     static maxSpawnTime = 600 / 60;
     #spawnTimer = 0;
@@ -19,11 +18,7 @@ export class Hayball {
     get hayballs() { return this.#hayballs; }
 
     Begin() {
-        for (let i = 0; i < Hayball.assets.length; i++) {
-            const img = new Image();
-            img.src = Hayball.assets[i];
-            this.#images.push(img);
-        }
+
     }
 
     Tick(deltaTime) {
@@ -31,7 +26,7 @@ export class Hayball {
 
         if (this.#engine.score >= 400 && this.#spawnTimer > (Math.random() * (Hayball.maxSpawnTime - Hayball.minSpawnTime) + Hayball.minSpawnTime) 
                                                         * (this.#engine.defaultGameSpeed / this.#engine.gameSpeed)) {
-            let randomImg = this.#images[Math.floor(Math.random() * this.#images.length)];
+            let randomImg = Hayball.images[Math.floor(Math.random() * Hayball.images.length)];
 
             this.#hayballs.push({
                 x: this.#engine.canvas.width,
