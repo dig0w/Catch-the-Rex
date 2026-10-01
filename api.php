@@ -1,6 +1,6 @@
 <?php
 header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: https://dino.mreng.cf");
+header("Access-Control-Allow-Origin: https://dino.mewy.cf");
 //header("Access-Control-Allow-Origin: http://172.17.2.16");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
@@ -145,7 +145,7 @@ $conn->close();
 
 // echo json_encode([
 //     "version" => "1.0.0",
-//     "author" => "mreng",
+//     "author" => "mewy",
 //     "description" => "API for Dino Game Leaderboard"
 // ]);
 ?>
